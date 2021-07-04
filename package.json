@@ -1,0 +1,24 @@
+{
+  "name": "project",
+  "version": "1.0.0",
+  "author": "danielbom <daniel.rodrigues.45@hotmail.com>",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "mongo": "node ./src/with-mongo/index.js"
+  },
+  "dependencies": {
+    "axios": "^0.21.1",
+    "bluebird": "^3.7.2",
+    "date-fns": "^2.22.1",
+    "dotenv": "^10.0.0",
+    "lazy.js": "^0.5.1",
+    "mongo-pipeline": "^1.0.11",
+    "mongoose": "^5.13.0"
+  },
+  "devDependencies": {
+    "@types/lazy.js": "^0.5.3",
+    "@types/mongodb": "^3.6.18",
+    "@types/node": "^15.12.5"
+  }
+}
