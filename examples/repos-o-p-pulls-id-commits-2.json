@@ -1,0 +1,241 @@
+// 20210701005047
+// https://api.github.com/repos/JabRef/jabref/pulls/7851/commits
+[
+  {
+    "sha": "d05e374c6ec1bdfc730ef74da27149a063bfaa75",
+    "node_id": "MDY6Q29tbWl0MTc2MzQwNzE6ZDA1ZTM3NGM2ZWMxYmRmYzczMGVmNzRkYTI3MTQ5YTA2M2JmYWE3NQ==",
+    "commit": {
+      "author": {
+        "name": "Oliver Kopp",
+        "email": "kopp.dev@gmail.com",
+        "date": "2021-06-27T20:44:26Z"
+      },
+      "committer": {
+        "name": "Oliver Kopp",
+        "email": "kopp.dev@gmail.com",
+        "date": "2021-06-27T20:44:26Z"
+      },
+      "message": "Initial fix for 7526",
+      "tree": {
+        "sha": "6936850b918b5935dd859c42e7fa9815fd550d2f",
+        "url": "https://api.github.com/repos/JabRef/jabref/git/trees/6936850b918b5935dd859c42e7fa9815fd550d2f"
+      },
+      "url": "https://api.github.com/repos/JabRef/jabref/git/commits/d05e374c6ec1bdfc730ef74da27149a063bfaa75",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null
+      }
+    },
+    "url": "https://api.github.com/repos/JabRef/jabref/commits/d05e374c6ec1bdfc730ef74da27149a063bfaa75",
+    "html_url": "https://github.com/JabRef/jabref/commit/d05e374c6ec1bdfc730ef74da27149a063bfaa75",
+    "comments_url": "https://api.github.com/repos/JabRef/jabref/commits/d05e374c6ec1bdfc730ef74da27149a063bfaa75/comments",
+    "author": {
+      "login": "koppor",
+      "id": 1366654,
+      "node_id": "MDQ6VXNlcjEzNjY2NTQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1366654?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/koppor",
+      "html_url": "https://github.com/koppor",
+      "followers_url": "https://api.github.com/users/koppor/followers",
+      "following_url": "https://api.github.com/users/koppor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/koppor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/koppor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/koppor/subscriptions",
+      "organizations_url": "https://api.github.com/users/koppor/orgs",
+      "repos_url": "https://api.github.com/users/koppor/repos",
+      "events_url": "https://api.github.com/users/koppor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/koppor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "koppor",
+      "id": 1366654,
+      "node_id": "MDQ6VXNlcjEzNjY2NTQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1366654?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/koppor",
+      "html_url": "https://github.com/koppor",
+      "followers_url": "https://api.github.com/users/koppor/followers",
+      "following_url": "https://api.github.com/users/koppor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/koppor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/koppor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/koppor/subscriptions",
+      "organizations_url": "https://api.github.com/users/koppor/orgs",
+      "repos_url": "https://api.github.com/users/koppor/repos",
+      "events_url": "https://api.github.com/users/koppor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/koppor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "b83748c24e2ae81e3d27598fa4a117ccc93c3ac2",
+        "url": "https://api.github.com/repos/JabRef/jabref/commits/b83748c24e2ae81e3d27598fa4a117ccc93c3ac2",
+        "html_url": "https://github.com/JabRef/jabref/commit/b83748c24e2ae81e3d27598fa4a117ccc93c3ac2"
+      }
+    ]
+  },
+  {
+    "sha": "4281cdb15b5b9f997668b698c4209d575d4f4319",
+    "node_id": "MDY6Q29tbWl0MTc2MzQwNzE6NDI4MWNkYjE1YjViOWY5OTc2NjhiNjk4YzQyMDlkNTc1ZDRmNDMxOQ==",
+    "commit": {
+      "author": {
+        "name": "Oliver Kopp",
+        "email": "kopp.dev@gmail.com",
+        "date": "2021-06-27T21:09:43Z"
+      },
+      "committer": {
+        "name": "Oliver Kopp",
+        "email": "kopp.dev@gmail.com",
+        "date": "2021-06-27T21:09:43Z"
+      },
+      "message": "Fix checkstyle",
+      "tree": {
+        "sha": "cadcb6a019cb65f9ea7e5bb57ed9763d5a03f330",
+        "url": "https://api.github.com/repos/JabRef/jabref/git/trees/cadcb6a019cb65f9ea7e5bb57ed9763d5a03f330"
+      },
+      "url": "https://api.github.com/repos/JabRef/jabref/git/commits/4281cdb15b5b9f997668b698c4209d575d4f4319",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null
+      }
+    },
+    "url": "https://api.github.com/repos/JabRef/jabref/commits/4281cdb15b5b9f997668b698c4209d575d4f4319",
+    "html_url": "https://github.com/JabRef/jabref/commit/4281cdb15b5b9f997668b698c4209d575d4f4319",
+    "comments_url": "https://api.github.com/repos/JabRef/jabref/commits/4281cdb15b5b9f997668b698c4209d575d4f4319/comments",
+    "author": {
+      "login": "koppor",
+      "id": 1366654,
+      "node_id": "MDQ6VXNlcjEzNjY2NTQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1366654?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/koppor",
+      "html_url": "https://github.com/koppor",
+      "followers_url": "https://api.github.com/users/koppor/followers",
+      "following_url": "https://api.github.com/users/koppor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/koppor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/koppor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/koppor/subscriptions",
+      "organizations_url": "https://api.github.com/users/koppor/orgs",
+      "repos_url": "https://api.github.com/users/koppor/repos",
+      "events_url": "https://api.github.com/users/koppor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/koppor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "koppor",
+      "id": 1366654,
+      "node_id": "MDQ6VXNlcjEzNjY2NTQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1366654?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/koppor",
+      "html_url": "https://github.com/koppor",
+      "followers_url": "https://api.github.com/users/koppor/followers",
+      "following_url": "https://api.github.com/users/koppor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/koppor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/koppor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/koppor/subscriptions",
+      "organizations_url": "https://api.github.com/users/koppor/orgs",
+      "repos_url": "https://api.github.com/users/koppor/repos",
+      "events_url": "https://api.github.com/users/koppor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/koppor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "d05e374c6ec1bdfc730ef74da27149a063bfaa75",
+        "url": "https://api.github.com/repos/JabRef/jabref/commits/d05e374c6ec1bdfc730ef74da27149a063bfaa75",
+        "html_url": "https://github.com/JabRef/jabref/commit/d05e374c6ec1bdfc730ef74da27149a063bfaa75"
+      }
+    ]
+  },
+  {
+    "sha": "906fe1bb1eeb31b99fdbd80a50a7853e54bcab52",
+    "node_id": "MDY6Q29tbWl0MTc2MzQwNzE6OTA2ZmUxYmIxZWViMzFiOTlmZGJkODBhNTBhNzg1M2U1NGJjYWI1Mg==",
+    "commit": {
+      "author": {
+        "name": "Oliver Kopp",
+        "email": "kopp.dev@gmail.com",
+        "date": "2021-06-27T21:28:00Z"
+      },
+      "committer": {
+        "name": "Oliver Kopp",
+        "email": "kopp.dev@gmail.com",
+        "date": "2021-06-27T21:28:00Z"
+      },
+      "message": "Fix checkstyle",
+      "tree": {
+        "sha": "34f4befd456728a17bef84d06711d70a11f0541e",
+        "url": "https://api.github.com/repos/JabRef/jabref/git/trees/34f4befd456728a17bef84d06711d70a11f0541e"
+      },
+      "url": "https://api.github.com/repos/JabRef/jabref/git/commits/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52",
+      "comment_count": 0,
+      "verification": {
+        "verified": false,
+        "reason": "unsigned",
+        "signature": null,
+        "payload": null
+      }
+    },
+    "url": "https://api.github.com/repos/JabRef/jabref/commits/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52",
+    "html_url": "https://github.com/JabRef/jabref/commit/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52",
+    "comments_url": "https://api.github.com/repos/JabRef/jabref/commits/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52/comments",
+    "author": {
+      "login": "koppor",
+      "id": 1366654,
+      "node_id": "MDQ6VXNlcjEzNjY2NTQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1366654?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/koppor",
+      "html_url": "https://github.com/koppor",
+      "followers_url": "https://api.github.com/users/koppor/followers",
+      "following_url": "https://api.github.com/users/koppor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/koppor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/koppor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/koppor/subscriptions",
+      "organizations_url": "https://api.github.com/users/koppor/orgs",
+      "repos_url": "https://api.github.com/users/koppor/repos",
+      "events_url": "https://api.github.com/users/koppor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/koppor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "committer": {
+      "login": "koppor",
+      "id": 1366654,
+      "node_id": "MDQ6VXNlcjEzNjY2NTQ=",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1366654?v=4",
+      "gravatar_id": "",
+      "url": "https://api.github.com/users/koppor",
+      "html_url": "https://github.com/koppor",
+      "followers_url": "https://api.github.com/users/koppor/followers",
+      "following_url": "https://api.github.com/users/koppor/following{/other_user}",
+      "gists_url": "https://api.github.com/users/koppor/gists{/gist_id}",
+      "starred_url": "https://api.github.com/users/koppor/starred{/owner}{/repo}",
+      "subscriptions_url": "https://api.github.com/users/koppor/subscriptions",
+      "organizations_url": "https://api.github.com/users/koppor/orgs",
+      "repos_url": "https://api.github.com/users/koppor/repos",
+      "events_url": "https://api.github.com/users/koppor/events{/privacy}",
+      "received_events_url": "https://api.github.com/users/koppor/received_events",
+      "type": "User",
+      "site_admin": false
+    },
+    "parents": [
+      {
+        "sha": "4281cdb15b5b9f997668b698c4209d575d4f4319",
+        "url": "https://api.github.com/repos/JabRef/jabref/commits/4281cdb15b5b9f997668b698c4209d575d4f4319",
+        "html_url": "https://github.com/JabRef/jabref/commit/4281cdb15b5b9f997668b698c4209d575d4f4319"
+      }
+    ]
+  }
+]

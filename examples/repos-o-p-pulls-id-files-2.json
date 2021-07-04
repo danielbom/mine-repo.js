@@ -1,0 +1,38 @@
+[
+  {
+    "sha": "df5afe7f63d59a83f7346932307d2da5577f25f5",
+    "filename": "CHANGELOG.md",
+    "status": "modified",
+    "additions": 1,
+    "deletions": 0,
+    "changes": 1,
+    "blob_url": "https://github.com/JabRef/jabref/blob/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52/CHANGELOG.md",
+    "raw_url": "https://github.com/JabRef/jabref/raw/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52/CHANGELOG.md",
+    "contents_url": "https://api.github.com/repos/JabRef/jabref/contents/CHANGELOG.md?ref=906fe1bb1eeb31b99fdbd80a50a7853e54bcab52",
+    "patch": "@@ -111,6 +111,7 @@ Note that this project **does not** adhere to [Semantic Versioning](http://semve\n - We fixed an issue where the RFC fetcher is not compatible with the draft [7305](https://github.com/JabRef/jabref/issues/7305)\n - We fixed an issue where duplicate files (both file names and contents are the same) is downloaded and add to linked files [#6197](https://github.com/JabRef/jabref/issues/6197)\n - We fixed an issue where changing the appearance of the preview tab did not trigger a restart warning. [#5464](https://github.com/JabRef/jabref/issues/5464)\n+- We fixed an issue where editing \"Custom preview style\" triggers exception. [#7526](https://github.com/JabRef/jabref/issues/7526)\n - We fixed an issue where a title with multiple applied formattings in EndNote was not imported correctly [forum#2734](https://discourse.jabref.org/t/importing-endnote-label-field-to-jabref-from-xml-file/2734)\n - We fixed an issue where a `report` in EndNote was imported as `article` [forum#2734](https://discourse.jabref.org/t/importing-endnote-label-field-to-jabref-from-xml-file/2734)\n - We fixed an issue where the field `publisher` in EndNote was not imported in JabRef [forum#2734](https://discourse.jabref.org/t/importing-endnote-label-field-to-jabref-from-xml-file/2734)"
+  },
+  {
+    "sha": "1e47272b14993f0ae01bd40cd727e6589ff2a27e",
+    "filename": "src/main/java/org/jabref/logic/layout/LayoutHelper.java",
+    "status": "modified",
+    "additions": 9,
+    "deletions": 5,
+    "changes": 14,
+    "blob_url": "https://github.com/JabRef/jabref/blob/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52/src/main/java/org/jabref/logic/layout/LayoutHelper.java",
+    "raw_url": "https://github.com/JabRef/jabref/raw/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52/src/main/java/org/jabref/logic/layout/LayoutHelper.java",
+    "contents_url": "https://api.github.com/repos/JabRef/jabref/contents/src/main/java/org/jabref/logic/layout/LayoutHelper.java?ref=906fe1bb1eeb31b99fdbd80a50a7853e54bcab52",
+    "patch": "@@ -188,7 +188,7 @@ private void doBracketedOptionField() throws IOException {\n         }\n     }\n \n-    private void parse() throws IOException, StringIndexOutOfBoundsException {\n+    private void parse() throws IOException {\n         skipWhitespace();\n \n         int c;\n@@ -254,11 +254,15 @@ private void parseField() throws IOException {\n \n                 if (name.isEmpty()) {\n                     StringBuilder lastFive = new StringBuilder(10);\n-                    for (StringInt entry : parsedEntries.subList(Math.max(0, parsedEntries.size() - 6),\n-                            parsedEntries.size() - 1)) {\n-                        lastFive.append(entry.s);\n+                    if (parsedEntries.isEmpty()) {\n+                        lastFive.append(\"unknown\");\n+                    } else {\n+                        for (StringInt entry : parsedEntries.subList(Math.max(0, parsedEntries.size() - 6),\n+                                parsedEntries.size() - 1)) {\n+                            lastFive.append(entry.s);\n+                        }\n                     }\n-                    throw new StringIndexOutOfBoundsException(\n+                    throw new IOException(\n                             \"Backslash parsing error near \\'\" + lastFive.toString().replace(\"\\n\", \" \") + '\\'');\n                 }\n "
+  },
+  {
+    "sha": "f78b71b92b0c321afc8490c0645fcfec4290c2e4",
+    "filename": "src/test/java/org/jabref/logic/layout/LayoutHelperTest.java",
+    "status": "added",
+    "additions": 39,
+    "deletions": 0,
+    "changes": 39,
+    "blob_url": "https://github.com/JabRef/jabref/blob/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52/src/test/java/org/jabref/logic/layout/LayoutHelperTest.java",
+    "raw_url": "https://github.com/JabRef/jabref/raw/906fe1bb1eeb31b99fdbd80a50a7853e54bcab52/src/test/java/org/jabref/logic/layout/LayoutHelperTest.java",
+    "contents_url": "https://api.github.com/repos/JabRef/jabref/contents/src/test/java/org/jabref/logic/layout/LayoutHelperTest.java?ref=906fe1bb1eeb31b99fdbd80a50a7853e54bcab52",
+    "patch": "@@ -0,0 +1,39 @@\n+package org.jabref.logic.layout;\n+\n+import java.io.IOException;\n+import java.io.StringReader;\n+\n+import org.junit.jupiter.api.Test;\n+\n+import static org.junit.jupiter.api.Assertions.assertNotNull;\n+import static org.junit.jupiter.api.Assertions.assertThrows;\n+import static org.mockito.Mockito.mock;\n+\n+class LayoutHelperTest {\n+\n+    @Test\n+    public void backslashDoesNotTriggerException() {\n+        StringReader stringReader = new StringReader(\"\\\\\");\n+        LayoutFormatterPreferences layoutFormatterPreferences = mock(LayoutFormatterPreferences.class);\n+        LayoutHelper layoutHelper = new LayoutHelper(stringReader, layoutFormatterPreferences);\n+        assertThrows(IOException.class, () -> layoutHelper.getLayoutFromText());\n+    }\n+\n+    @Test\n+    public void unbalancedBeginEndIsParsed() throws Exception {\n+        StringReader stringReader = new StringReader(\"\\\\begin{doi}, DOI: \\\\doi\");\n+        LayoutFormatterPreferences layoutFormatterPreferences = mock(LayoutFormatterPreferences.class);\n+        LayoutHelper layoutHelper = new LayoutHelper(stringReader, layoutFormatterPreferences);\n+        Layout layout = layoutHelper.getLayoutFromText();\n+        assertNotNull(layout);\n+    }\n+\n+    @Test\n+    public void minimalExampleWithDoiGetsParsed() throws Exception {\n+        StringReader stringReader = new StringReader(\"\\\\begin{doi}, DOI: \\\\doi\\\\end{doi}\");\n+        LayoutFormatterPreferences layoutFormatterPreferences = mock(LayoutFormatterPreferences.class);\n+        LayoutHelper layoutHelper = new LayoutHelper(stringReader, layoutFormatterPreferences);\n+        Layout layout = layoutHelper.getLayoutFromText();\n+        assertNotNull(layout);\n+    }\n+}"
+  }
+]
