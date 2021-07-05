@@ -1,8 +1,8 @@
 {
-  "editor.formatOnSave": true,
   "[markdown]": {
     "editor.formatOnSave": false,
     "editor.wordWrap": "on",
     "editor.quickSuggestions": false
-  }
+  },
+  "editor.formatOnSave": true,
 }
