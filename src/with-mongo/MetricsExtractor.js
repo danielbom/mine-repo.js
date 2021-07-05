@@ -144,6 +144,40 @@ class MetricsExtractor {
     await Promise.all(promises);
   }
 
+  async extractMainLanguage() {
+    const projects = db.models.project
+      .find({ "base.mainLanguage": { $exists: false } })
+      .stream();
+
+    const promises = [];
+    for await (const p of projects) {
+      const project = await db.models.project.findById(p._id);
+
+      const mainLanguage = Object.entries(project.languages)
+        .map(([language, count]) => ({ language, count }))
+        .reduce((curr, next) => {
+          if (curr === null) {
+            return next;
+          } else {
+            return curr.count > next.count ? curr : next;
+          }
+        }, null);
+
+      const base = {
+        ...project.base,
+        mainLanguage,
+      };
+      project.base = base;
+      promises.push(project.save());
+
+      if (promises.length === 500) {
+        await Promise.all(promises);
+        promises.length = 0;
+      }
+    }
+    await Promise.all(promises);
+  }
+
   async start() {
     console.log(`Start Extract metrics`);
 
@@ -151,6 +185,7 @@ class MetricsExtractor {
     await this.extractProjectData();
     await this.extractPullRequestFileData();
     await this.extractPullRequestData();
+    await this.extractMainLanguage();
     console.timeEnd("Total time");
   }
 }

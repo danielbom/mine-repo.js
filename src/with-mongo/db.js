@@ -10,6 +10,7 @@ const ProjectSchema = new mongoose.Schema(
     projectOwner: RequiredString,
     data: Object, // Response of github API
     base: Object, // Basic data extracted
+    languages: Object, // Response of github API
     pullsCollected: { type: Boolean, default: false },
   },
   { timestamps: true }

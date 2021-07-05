@@ -21,6 +21,9 @@ const urlsBuilder = ({ projectOwner, projectName }) => ({
   getClosedPullRequestsUrl({ page }) {
     return `https://api.github.com/repos/${projectOwner}/${projectName}/pulls?state="closed"&page=${page}`;
   },
+  getLanguages() {
+    return `https://api.github.com/repos/${projectOwner}/${projectName}/languages`;
+  },
   getRequesterFollowsMergerUrl({ requesterLogin, mergerLogin }) {
     // Status: 204 === YES | 404 === NO
     // Para cada pull request é necessário fazer uma chamada a esta URL

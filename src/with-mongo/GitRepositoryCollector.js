@@ -48,6 +48,13 @@ class GitRepositoryCollector {
     return data;
   }
 
+  async collectProjectLanguages() {
+    const url = this.urls.getLanguages();
+    const response = await this.httpGetRequest(url);
+    this.project.languages = response.data;
+    await this.project.save();
+  }
+
   async collectRepositoryData() {
     const url = this.urls.getRepositoryUrl();
     const response = await this.httpGetRequest(url);
@@ -240,6 +247,10 @@ class GitRepositoryCollector {
         this.pullRequestsCount = await db.models.pullRequest.countDocuments({
           project: this.project,
         });
+      }
+
+      if (!this.project.languages) {
+        await this.collectProjectLanguages();
       }
     }
 
