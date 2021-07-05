@@ -10,7 +10,7 @@ const requester = githubApi.api;
 
 function sleep(ms) {
   return new Promise((resolve) => {
-    setTimeout(() => resolve(ms), 1);
+    setTimeout(() => resolve(ms), ms);
   });
 }
 
@@ -41,7 +41,6 @@ class GitRepositoryCollector {
 
   async httpGetRequest(url, options = null) {
     console.log(`Request: ${url}`);
-    console.time("Request time");
     this.requestsCount++;
     try {
       const data = await requester.get(url, options);
@@ -54,9 +53,14 @@ class GitRepositoryCollector {
       if (statusCode === 403) throw new Error("API rate limit exceeded");
 
       return err?.response;
-    } finally {
-      console.timeEnd("Request time");
     }
+  }
+
+  async httpGetRequestTimed(url, options = null) {
+    console.log(`Request: ${url}`);
+    const data = await this.httpGetRequest(url, options);
+    console.timeEnd("Request time");
+    return data;
   }
 
   async collectRepositoryData() {
@@ -118,7 +122,7 @@ class GitRepositoryCollector {
     };
   }
 
-  async collectClosedPullRequests() {
+  async collectAllClosedPullRequests() {
     let page = Math.floor(this.pullRequestsCount / PER_PAGE) + 1;
 
     while (true) {
@@ -140,18 +144,13 @@ class GitRepositoryCollector {
             await db.models.pullRequest.create({
               project: this.project,
               data: pullRequest,
-              base: this._extractBasicDataFromPullRequest(pullRequest),
             });
           }
         },
         P_OPTS
       );
 
-      if (length === 0) {
-        break;
-      } else {
-        await sleep(1000);
-      }
+      if (length === 0) break;
     }
   }
 
@@ -164,7 +163,10 @@ class GitRepositoryCollector {
     const [{ contributorsCount }] = await db.models.pullRequest
       .aggregate()
       .match({ project: this.project._id })
-      .group({ _id: "$base.pullRequester.login" })
+      .group({
+        _id: "$base.pullRequester.login",
+        "base.wasAccepted": true,
+      })
       .count("contributorsCount");
 
     const createdAt = new Date(repo.created_at);
@@ -175,7 +177,7 @@ class GitRepositoryCollector {
       createdAt,
       projectAge: differenceInMonths(TODAY, createdAt),
       // - Número de estrelas
-      starts: repo.stargazers_count,
+      stars: repo.stargazers_count,
       // - Número de colaboradores: Quantidade de colaboradores únicos dos pull requests obtidos
       contributorsCount,
     };
@@ -224,11 +226,7 @@ class GitRepositoryCollector {
         P_OPTS
       );
 
-      if (length === 0) {
-        break;
-      } else {
-        await sleep(1000);
-      }
+      if (length === 0) break;
     }
   }
 
@@ -245,11 +243,21 @@ class GitRepositoryCollector {
       await db.models.pullRequest.findByIdAndUpdate(pr._id, {
         filesCollected: true,
       });
-      await sleep(1000);
     }
   }
 
   async _aggregateFilesMeasures() {}
+
+  async _collectIndividualPullRequest(pr) {
+    const url = pr.data.url;
+    const response = await this.httpGetRequest(url);
+    const data = response.data;
+
+    await db.models.pullRequest.findByIdAndUpdate(pr._id, {
+      selfData: data,
+      individualPrCollected: true,
+    });
+  }
 
   async collectIndividualPullRequests() {
     const prs = db.models.pullRequest
@@ -259,16 +267,16 @@ class GitRepositoryCollector {
       })
       .stream();
 
+    const promises = [];
     for await (const pr of prs) {
-      const url = pr.data.url;
-      const response = await this.httpGetRequest(url);
-      const data = response.data;
+      promises.push(this._collectIndividualPullRequest(pr));
 
-      await db.models.pullRequest.findByIdAndUpdate(pr._id, {
-        selfData: data,
-        individualPrCollected: true,
-      });
+      if (promises.length === 5) {
+        await Promise.all(promises);
+        promises.length = 0;
+      }
     }
+    await Promise.all(promises);
   }
 
   async checkIfRequesterFollowMerger() {
@@ -348,7 +356,7 @@ class GitRepositoryCollector {
     // Collect pull requests
     {
       if (!this.project.pullsCollected) {
-        await this.collectClosedPullRequests();
+        await this.collectAllClosedPullRequests();
         this.project.pullsCollected = true;
         await this.project.save();
       }
