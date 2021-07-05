@@ -1,3 +1,5 @@
+const { differenceInMonths } = require("date-fns");
+
 const NS_PER_SEC = 1e9;
 const MS_PER_NS = 1e-6;
 function hrtimeMs(diffTimer) {
@@ -10,7 +12,14 @@ function sleep(ms) {
   });
 }
 
+const TODAY = new Date();
+function monthsUntilToday(createdAt) {
+  return differenceInMonths(TODAY, createdAt);
+}
+
 module.exports = {
   hrtimeMs,
   sleep,
+  monthsUntilToday,
+  TODAY,
 };

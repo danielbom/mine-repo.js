@@ -1,5 +1,4 @@
 const Promise = require("bluebird");
-const { differenceInMonths } = require("date-fns");
 
 const db = require("./db");
 const { hrtimeMs } = require("./utils");
@@ -10,7 +9,6 @@ const requester = githubApi.api;
 const CONCURRENCY = 20;
 const P_OPTS = { concurrency: CONCURRENCY };
 const PER_PAGE = 30;
-const TODAY = new Date();
 
 class GitRepositoryCollector {
   constructor(projectName, projectOwner) {
@@ -58,57 +56,6 @@ class GitRepositoryCollector {
     await this.project.save();
   }
 
-  _extractBasicDataFromPullRequest(pr) {
-    // Quando o pull request é recusado, "mergedBy" é "null"
-    let mergedBy = null;
-
-    if (pr.merged_by) {
-      mergedBy = {
-        id: pr.merged_by.id,
-        login: pr.merged_by.login,
-      };
-    }
-
-    return {
-      // Identificador
-      id: pr.id,
-      url: pr.url,
-      // - Número de linhas modificadas, removidas e adicionadas
-      // TODO: Verificar se está completo
-      commits: pr.commits ?? null,
-      additions: pr.additions ?? null,
-      deletions: pr.deletions ?? null,
-      // - Quantidade de arquivos alterados, removidos e adicionados
-      fileChanges: pr.changed_files ?? null,
-      // - Existem testes (caminhos dos arquivos contém "test")
-      // TODO: É preciso verificar cada arquivo modificado para avaliar os arquivos
-      commitsUrl: pr.commits_url ?? null,
-      // - Solicitante é seguidor do gerente que aceitou
-      // TODO: É preciso verificar se "mergedBy" é seguido por a "pullRequester"
-      //       É necessário realizar uma chamada a API
-      mergedBy,
-      // - Quantidade de comentários
-      comments: pr.comments ?? null,
-      reviewComments: pr.review_comments ?? null,
-      // - Número de colaboradores
-      // TODO: É preciso contar o número de colaboradores
-      pullRequester: {
-        id: pr.user.id,
-        login: pr.user.login,
-        // - Número de seguidores
-        // TODO: É preciso contar o número de seguidores
-        followersUrl: pr.user.followers_url,
-      },
-      // - O pull request foi aceito
-      wasAccepted: Boolean(pr.merged_at !== null || pr.merged),
-      // Dates
-      createdAt: pr.created_at,
-      updatedAt: pr.updated_at,
-      closedAt: pr.closed_at,
-      mergedAt: pr.merged_at,
-    };
-  }
-
   async collectAllClosedPullRequests() {
     let page = Math.floor(this.pullRequestsCount / PER_PAGE) + 1;
 
@@ -141,46 +88,6 @@ class GitRepositoryCollector {
     }
   }
 
-  async _extractBasicDataFromRepositoryData() {
-    // TODO: Obter dos dados do projeto
-    // - Número de usuários
-    // TODO: Verificar o que o número de usuários significa (Rever a aula)
-
-    const repo = this.project.data;
-    const [{ contributorsCount }] = await db.models.pullRequest
-      .aggregate()
-      .match({ project: this.project._id })
-      .group({
-        _id: "$base.pullRequester.login",
-        "base.wasAccepted": true,
-      })
-      .count("contributorsCount");
-
-    const createdAt = new Date(repo.created_at);
-
-    return {
-      // - Idade do projeto (Em meses)
-      countedAt: TODAY,
-      createdAt,
-      projectAge: differenceInMonths(TODAY, createdAt),
-      // - Número de estrelas
-      stars: repo.stargazers_count,
-      // - Número de colaboradores: Quantidade de colaboradores únicos dos pull requests obtidos
-      contributorsCount,
-    };
-  }
-
-  _extractBasicDataFromPullRequestFile(prf) {
-    return {
-      sha: prf.sha,
-      filename: prf.filename,
-      status: prf.status,
-      additions: prf.additions,
-      deletions: prf.deletions,
-      changes: prf.changes,
-    };
-  }
-
   async _collectPullRequestFiles(pr) {
     let page = 1;
 
@@ -206,7 +113,6 @@ class GitRepositoryCollector {
               project: this.project,
               pullRequest: pr,
               data: pullRequestFile,
-              base: this._extractBasicDataFromPullRequestFile(pullRequestFile),
             });
           }
         },
@@ -232,8 +138,6 @@ class GitRepositoryCollector {
       });
     }
   }
-
-  async _aggregateFilesMeasures() {}
 
   async _collectIndividualPullRequest(pr) {
     const url = pr.data.url;
@@ -327,7 +231,6 @@ class GitRepositoryCollector {
         projectName: this.projectName,
         projectOwner: this.projectOwner,
       };
-      await db.connect();
       this.project = await db.models.project.findOne(project);
 
       if (!this.project) {
@@ -347,24 +250,11 @@ class GitRepositoryCollector {
         this.project.pullsCollected = true;
         await this.project.save();
       }
-
-      if (!this.project.base) {
-        this.project.base = await this._extractBasicDataFromRepositoryData();
-        await this.project.save();
-      }
     }
 
-    // Collect pull requests files
     await this.collectPullRequestsFiles();
-
-    // Collect individual pull requests
     await this.collectIndividualPullRequests();
-
     await this.checkIfRequesterFollowMerger();
-
-    // this.project.base.filesMeasures = await this._aggregateFilesMeasures();
-
-    await db.disconnect();
 
     // Logging end
     {
