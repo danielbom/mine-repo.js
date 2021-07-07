@@ -4,18 +4,8 @@ const GitRepositoryCollector = require("./GitRepositoryCollector");
 const MetricsExtractor = require("./MetricsExtractor");
 const db = require("./db");
 
-async function runCollector() {
+async function runCollector({ projectOwner, projectName }) {
   try {
-    const args = process.argv.slice(2);
-
-    if (args.length !== 2) {
-      console.error("Invalid number of arguments");
-      console.error("Usage: yarn mongo [project-owner] [project-name]");
-
-      process.exit(1);
-    }
-
-    const [projectOwner, projectName] = args;
     const collector = new GitRepositoryCollector(projectName, projectOwner);
     await collector.start();
   } catch (err) {
@@ -23,14 +13,14 @@ async function runCollector() {
   }
 }
 
-async function run() {
+async function runner(projectOwner, projectName) {
   await db.connect();
 
   process.on("error", (_err) => {
     db.disconnect();
   });
 
-  let error = await runCollector();
+  const error = await runCollector({ projectOwner, projectName });
 
   const extractor = new MetricsExtractor();
   await extractor.start();
@@ -40,4 +30,4 @@ async function run() {
   if (error) throw error;
 }
 
-run();
+module.exports = runner;
