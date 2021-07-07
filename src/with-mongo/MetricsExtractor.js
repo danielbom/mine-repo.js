@@ -6,11 +6,23 @@ const baseNotExists = {
 };
 
 class MetricsExtractor {
+  async extractWith(data, extractor) {
+    const promises = [];
+    for await (const item of data) {
+      promises.push(extractor(item));
+
+      if (promises.length === 10) {
+        await Promise.all(promises);
+        promises.length = 0;
+      }
+    }
+    await Promise.all(promises);
+  }
+
   async extractPullRequestFileData() {
     const files = db.models.pullRequestFile.find(baseNotExists).stream();
 
-    const promises = [];
-    for await (const f of files) {
+    await this.extractWith(files, async (f) => {
       const file = await db.models.pullRequestFile.findById(f._id);
       file.base = {
         sha: file.sha,
@@ -20,14 +32,8 @@ class MetricsExtractor {
         deletions: file.deletions,
         changes: file.changes,
       };
-      promises.push(file.save());
-
-      if (promises.length === 500) {
-        await Promise.all(promises);
-        promises.length = 0;
-      }
-    }
-    await Promise.all(promises);
+      await file.save();
+    });
   }
 
   async _extractProjectData(project) {
@@ -38,11 +44,8 @@ class MetricsExtractor {
     const repo = project.data;
     const [{ contributorsCount }] = await db.models.pullRequest
       .aggregate()
-      .match({ project: project._id })
-      .group({
-        _id: "$base.pullRequester.login",
-        "base.wasAccepted": true,
-      })
+      .match({ project: project._id, "base.wasAccepted": true })
+      .group({ _id: "$base.pullRequester.login" })
       .count("contributorsCount");
 
     const createdAt = new Date(repo.created_at);
@@ -62,18 +65,11 @@ class MetricsExtractor {
   async extractProjectData() {
     const projects = db.models.project.find(baseNotExists).stream();
 
-    const promises = [];
-    for await (const p of projects) {
+    await this.extractWith(projects, async (p) => {
       const project = await db.models.project.findById(p._id);
-      project.base = this._extractProjectData(project);
-      promises.push(project.save());
-
-      if (promises.length === 500) {
-        await Promise.all(promises);
-        promises.length = 0;
-      }
-    }
-    await Promise.all(promises);
+      project.base = await this._extractProjectData(p);
+      await project.save();
+    });
   }
 
   _extractPullRequestData(pr) {
@@ -130,18 +126,11 @@ class MetricsExtractor {
   async extractPullRequestData() {
     const pullRequests = db.models.pullRequest.find(baseNotExists).stream();
 
-    const promises = [];
-    for await (const pr of pullRequests) {
+    await this.extractWith(pullRequests, async (pr) => {
       const pullRequest = await db.models.pullRequest.findById(pr._id);
       pullRequest.base = this._extractPullRequestData(pullRequest.data);
-      promises.push(pullRequest.save());
-
-      if (promises.length === 500) {
-        await Promise.all(promises);
-        promises.length = 0;
-      }
-    }
-    await Promise.all(promises);
+      await pullRequest.save();
+    });
   }
 
   async extractMainLanguage() {
@@ -149,8 +138,7 @@ class MetricsExtractor {
       .find({ "base.mainLanguage": { $exists: false } })
       .stream();
 
-    const promises = [];
-    for await (const p of projects) {
+    await this.extractWith(projects, async (p) => {
       const project = await db.models.project.findById(p._id);
 
       const mainLanguage = Object.entries(project.languages)
@@ -163,19 +151,12 @@ class MetricsExtractor {
           }
         }, null);
 
-      const base = {
+      project.base = {
         ...project.base,
         mainLanguage,
       };
-      project.base = base;
-      promises.push(project.save());
-
-      if (promises.length === 500) {
-        await Promise.all(promises);
-        promises.length = 0;
-      }
-    }
-    await Promise.all(promises);
+      await project.save();
+    });
   }
 
   async start() {
