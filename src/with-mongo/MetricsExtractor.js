@@ -11,7 +11,7 @@ class MetricsExtractor {
     for await (const item of data) {
       promises.push(extractor(item));
 
-      if (promises.length === 10) {
+      if (promises.length === 32) {
         await Promise.all(promises);
         promises.length = 0;
       }
@@ -159,6 +159,28 @@ class MetricsExtractor {
     });
   }
 
+  async extractTestsExistence() {
+    const pullRequests = db.models.pullRequest
+      .find({ "base.existsTests": { $exists: false } })
+      .stream();
+
+    await this.extractWith(pullRequests, async (pr) => {
+      const pullRequest = await db.models.pullRequest.findById(pr._id);
+      const existFile = await db.models.pullRequestFile.findOne({
+        pullRequest: pr._id,
+        "data.filename": {
+          $regex: "test",
+          $options: "i",
+        },
+      });
+      pullRequest.base = {
+        ...pullRequest.base,
+        existsTests: Boolean(existFile),
+      };
+      await pullRequest.save();
+    });
+  }
+
   async start() {
     console.log(`Start Extract metrics`);
 
@@ -167,6 +189,7 @@ class MetricsExtractor {
     await this.extractPullRequestFileData();
     await this.extractPullRequestData();
     await this.extractMainLanguage();
+    await this.extractTestsExistence();
     console.timeEnd("Total time");
   }
 }
