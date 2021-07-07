@@ -1,3 +1,5 @@
+const config = require("../config");
+
 const mongoose = require("mongoose");
 
 const ObjectId = { type: mongoose.Types.ObjectId, required: true };
@@ -50,8 +52,7 @@ const FollowCheckSchema = new mongoose.Schema(
 
 module.exports = {
   connect() {
-    const uri = "mongodb://localhost:27017/repo-mine";
-    return mongoose.connect(uri, {
+    return mongoose.connect(config.MONGODB_URI, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       useFindAndModify: false,
