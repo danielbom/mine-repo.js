@@ -1,13 +1,14 @@
 const Promise = require("bluebird");
 
 const db = require("../database");
-const { hrtimeMs, urlsBuilder } = require("../utils");
+const { hrtimeMs, urlsBuilder, sleep } = require("../utils");
 
 const api = require("../apis/github");
 
 const CONCURRENCY = 20;
 const P_OPTS = { concurrency: CONCURRENCY };
-const PER_PAGE = 30;
+
+const PULL_REQUEST_PER_PAGE = 30;
 
 class GitRepositoryCollector {
   constructor(projectName, projectOwner) {
@@ -23,27 +24,41 @@ class GitRepositoryCollector {
     this.urls = urlsBuilder({ projectOwner, projectName });
   }
 
-  async _get(url, options = null) {
+  async _tryGet(tries, url) {
     this.requestsCount++;
-    console.log(`Request [${this.requestsCount}]: ${url}`);
+    console.log(`Request [${this.requestsCount}, ${tries}]: ${url}`);
     try {
-      const data = await api.get(url, options);
+      const data = await api.get(url);
       return data;
     } catch (err) {
       const statusCode = err?.response?.status ?? 0;
       console.log(`ERROR[${statusCode}]: Request: ${url}`);
 
-      // API rate limit exceeded
-      if (statusCode === 403) throw new Error("API rate limit exceeded");
+      if (statusCode === 403) {
+        throw new Error("API rate limit exceeded");
+      }
+      if (err.isAxiosError && err.message.includes("timeout")) {
+        if (tries < 3) {
+          await sleep(10000);
+          return await this._tryGet(tries + 1, url);
+        } else {
+          throw new Error("API timeout exceeded");
+        }
+      }
 
+      console.log(err);
       return err?.response;
     }
   }
 
-  async httpGetRequestTimed(url, options = null) {
-    console.log(`Request: ${url}`);
-    const data = await this._get(url, options);
-    console.timeEnd("Request time");
+  async _get0(url) {
+    return await this._tryGet(0, url);
+  }
+
+  async _get(url) {
+    console.time(`Request time ${url}`);
+    const data = await this._get0(url);
+    console.timeEnd(`Request time ${url}`);
     return data;
   }
 
@@ -80,7 +95,7 @@ class GitRepositoryCollector {
   async collectAllClosedPullRequests() {
     if (this.project.pullsCollected) return;
 
-    let page = Math.floor(this.pullRequestsCount / PER_PAGE) + 1;
+    let page = Math.floor(this.pullRequestsCount / PULL_REQUEST_PER_PAGE) + 1;
 
     while (true) {
       const url = this.urls.getClosedPullRequestsUrl({ page });
@@ -117,36 +132,45 @@ class GitRepositoryCollector {
   async _collectPullRequestFiles(pr) {
     let page = 1;
 
-    while (true) {
+    const promises = [];
+    let running = true;
+    while (running) {
       const url = `${pr.data.url}/files?page=${page}`;
       page++;
 
-      const response = await this._get(url);
+      promises.push(
+        (async () => {
+          const response = await this._get(url);
 
-      const data = response.data;
-      const length = data?.length ?? 0;
+          const data = response.data;
+          const length = data?.length ?? 0;
 
-      await Promise.map(
-        data || [],
-        async (pullRequestFile) => {
-          const pullRequestFileExists = await db.models.pullRequestFile.findOne(
-            { "data.sha": pullRequestFile.sha }
+          await Promise.map(
+            data || [],
+            async (pullRequestFile) => {
+              const pullRequestFileExists =
+                await db.models.pullRequestFile.findOne({
+                  "data.sha": pullRequestFile.sha,
+                });
+              if (!pullRequestFileExists) {
+                pullRequestFile.patch = undefined;
+
+                await db.models.pullRequestFile.create({
+                  project: this.project,
+                  pullRequest: pr,
+                  data: pullRequestFile,
+                });
+              }
+            },
+            P_OPTS
           );
-          if (!pullRequestFileExists) {
-            pullRequestFile.patch = undefined;
-
-            await db.models.pullRequestFile.create({
-              project: this.project,
-              pullRequest: pr,
-              data: pullRequestFile,
-            });
-          }
-        },
-        P_OPTS
+          if (length === 0) running = false;
+        })()
       );
 
-      if (length === 0) break;
+      if (promises.length === 2) await Promise.all(promises);
     }
+    await Promise.all(promises);
   }
 
   async collectPullRequestsFiles() {

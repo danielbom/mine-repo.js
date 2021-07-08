@@ -14,4 +14,6 @@ const api = axios.create({
   },
 });
 
+api.defaults.timeout = 5000;
+
 module.exports = api;
