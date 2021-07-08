@@ -24,26 +24,26 @@ yarn mongo JabRef jabref
 
 ## Dados coletadas.
 
-- [x] Nome do projeto
-- [ ] Informação de um **pull request** fechado
+- [x] Projeto
+  - [x] Nome do projeto
+  - [x] Idade do projeto
+  - [x] Número de estrelas
+    - [x] Número de colaboradores
+    - [x] Quantidade de pessoas que tiveram um pull request aceito
+    - [x] Verificar se a contagem foi feita corretamente
+- [x] Informação de um **pull request** fechado
   - [x] Número de linhas modificadas, removidas e adicionadas
   - [x] Quantidade de arquivos alterados, removidos e adicionados
   - [x] Existem testes (caminhos dos arquivos contém "test")
   - [x] O pull request foi aceito
   - [x] Solicitante é seguidor do gerente que aceitou
   - [x] Quantidade de comentários
-  - [x] Idade do projeto
-  - [ ] Número de usuários
-  - [x] Número de estrelas
-  - [x] Número de colaboradores
-    - [x] Quantidade de pessoas que tiveram um pull request aceito
-    - [x] Verificar se a contagem foi feita corretamente
 - [ ] Informações de usuários
   - [ ] É um coladorador?
     - [ ] Tem a permissão de fazer commits no projeto.
     - [ ] `author_association` ("NONE" | "MEMBER" | "COLLABORATOR" | "CONTRIBUTOR")
       - [ ] Verificar o significado deste atributo.
-  - [ ] Número de seguidores
+  - [x] Número de seguidores
   - [ ] Contagem das interações do usuário com o repositório antes do pull request
 
 ## Referencias
