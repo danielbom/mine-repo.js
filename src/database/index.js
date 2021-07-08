@@ -42,10 +42,13 @@ const PullRequestFileSchema = new mongoose.Schema(
 
 const FollowCheckSchema = new mongoose.Schema(
   {
+    project: ObjectId,
+    pullRequest: ObjectId,
     requesterLogin: RequiredString,
     mergerLogin: RequiredString,
     following: RequiredBoolean,
     sameAsMerger: RequiredBoolean,
+    data: Object, // requesterLogin data: Response of github API
   },
   { timestamps: true }
 );

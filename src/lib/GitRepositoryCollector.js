@@ -9,6 +9,7 @@ const CONCURRENCY = 20;
 const P_OPTS = { concurrency: CONCURRENCY };
 
 const PULL_REQUEST_PER_PAGE = 30;
+const TIMEOUT_RETRY_DELAY = 5000;
 
 class GitRepositoryCollector {
   constructor(projectName, projectOwner) {
@@ -39,15 +40,14 @@ class GitRepositoryCollector {
       }
       if (err.isAxiosError && err.message.includes("timeout")) {
         if (tries < 3) {
-          await sleep(10000);
+          await sleep(TIMEOUT_RETRY_DELAY);
           return await this._tryGet(tries + 1, url);
         } else {
           throw new Error("API timeout exceeded");
         }
       }
 
-      console.log(err);
-      return err?.response;
+      throw err;
     }
   }
 
@@ -73,7 +73,7 @@ class GitRepositoryCollector {
       this.project = await db.models.project.create(project);
 
       if (!this.project.data) {
-        const url = this.urls.getRepositoryUrl();
+        const url = this.urls.getRepository();
         const response = await this._get(url);
         const data = response.data;
         this.project.data = data;
@@ -98,7 +98,7 @@ class GitRepositoryCollector {
     let page = Math.floor(this.pullRequestsCount / PULL_REQUEST_PER_PAGE) + 1;
 
     while (true) {
-      const url = this.urls.getClosedPullRequestsUrl({ page });
+      const url = this.urls.getClosedPullRequests({ page });
       page++;
 
       const response = await this._get(url);
@@ -244,19 +244,23 @@ class GitRepositoryCollector {
 
         if (sameAsMerger) {
           await db.models.followCheck.create({
+            project: this.project._id,
+            pullRequest: pr._id,
             requesterLogin,
             mergerLogin,
             sameAsMerger: true,
             following: false,
           });
         } else {
-          const url = this.urls.getRequesterFollowsMergerUrl({
+          const url = this.urls.getRequesterFollowsMerger({
             requesterLogin,
             mergerLogin,
           });
           const response = await this._get(url);
 
           await db.models.followCheck.create({
+            project: this.project._id,
+            pullRequest: pr._id,
             requesterLogin,
             mergerLogin,
             sameAsMerger: false,
@@ -264,6 +268,21 @@ class GitRepositoryCollector {
           });
         }
       }
+    }
+  }
+
+  async collectRequesterInformation() {
+    const followChecks = await db.models.followCheck
+      .find({ project: this.project._id, data: null })
+      .stream();
+
+    for await (const fc of followChecks) {
+      const url = this.urls.getUserInformation(fc.requesterLogin);
+      const response = await this._get(url);
+
+      const followCheck = await db.models.followCheck.findById(fc._id);
+      followCheck.data = response.data;
+      await followCheck.save();
     }
   }
 
@@ -281,6 +300,7 @@ class GitRepositoryCollector {
     await this.collectPullRequestsFiles();
     await this.collectIndividualPullRequests();
     await this.checkIfRequesterFollowMerger();
+    await this.collectRequesterInformation();
 
     // Logging end
     {
