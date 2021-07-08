@@ -1,4 +1,4 @@
-const runner = require("./with-mongo");
+const runner = require("./lib");
 
 const args = process.argv.slice(2);
 

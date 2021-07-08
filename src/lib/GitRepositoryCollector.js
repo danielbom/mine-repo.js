@@ -1,10 +1,9 @@
 const Promise = require("bluebird");
 
-const db = require("./db");
-const { hrtimeMs } = require("./utils");
+const db = require("../database");
+const { hrtimeMs, urlsBuilder } = require("../utils");
 
-const githubApi = require("../github-api");
-const requester = githubApi.api;
+const api = require("../apis/github");
 
 const CONCURRENCY = 20;
 const P_OPTS = { concurrency: CONCURRENCY };
@@ -21,14 +20,14 @@ class GitRepositoryCollector {
     this.pullRequestsFilesCount = 0;
 
     this.requestsCount = 0;
-    this.urls = githubApi.urlsBuilder({ projectOwner, projectName });
+    this.urls = urlsBuilder({ projectOwner, projectName });
   }
 
-  async httpGetRequest(url, options = null) {
-    console.log(`Request: ${url}`);
+  async _get(url, options = null) {
     this.requestsCount++;
+    console.log(`Request [${this.requestsCount}]: ${url}`);
     try {
-      const data = await requester.get(url, options);
+      const data = await api.get(url, options);
       return data;
     } catch (err) {
       const statusCode = err?.response?.status ?? 0;
@@ -43,34 +42,51 @@ class GitRepositoryCollector {
 
   async httpGetRequestTimed(url, options = null) {
     console.log(`Request: ${url}`);
-    const data = await this.httpGetRequest(url, options);
+    const data = await this._get(url, options);
     console.timeEnd("Request time");
     return data;
   }
 
-  async collectProjectLanguages() {
-    const url = this.urls.getLanguages();
-    const response = await this.httpGetRequest(url);
-    this.project.languages = response.data;
-    await this.project.save();
-  }
+  async loadProject() {
+    const project = {
+      projectName: this.projectName,
+      projectOwner: this.projectOwner,
+    };
+    this.project = await db.models.project.findOne(project);
 
-  async collectRepositoryData() {
-    const url = this.urls.getRepositoryUrl();
-    const response = await this.httpGetRequest(url);
-    const data = response.data;
-    this.project.data = data;
-    await this.project.save();
+    if (!this.project) {
+      this.project = await db.models.project.create(project);
+
+      if (!this.project.data) {
+        const url = this.urls.getRepositoryUrl();
+        const response = await this._get(url);
+        const data = response.data;
+        this.project.data = data;
+      }
+      if (!this.project.languages) {
+        const url = this.urls.getLanguages();
+        const response = await this._get(url);
+        this.project.languages = response.data;
+      }
+
+      await this.project.save();
+    } else {
+      this.pullRequestsCount = await db.models.pullRequest.countDocuments({
+        project: this.project,
+      });
+    }
   }
 
   async collectAllClosedPullRequests() {
+    if (this.project.pullsCollected) return;
+
     let page = Math.floor(this.pullRequestsCount / PER_PAGE) + 1;
 
     while (true) {
       const url = this.urls.getClosedPullRequestsUrl({ page });
       page++;
 
-      const response = await this.httpGetRequest(url);
+      const response = await this._get(url);
 
       const data = response.data;
       const length = data?.length ?? 0;
@@ -93,6 +109,9 @@ class GitRepositoryCollector {
 
       if (length === 0) break;
     }
+
+    this.project.pullsCollected = true;
+    await this.project.save();
   }
 
   async _collectPullRequestFiles(pr) {
@@ -102,7 +121,7 @@ class GitRepositoryCollector {
       const url = `${pr.data.url}/files?page=${page}`;
       page++;
 
-      const response = await this.httpGetRequest(url);
+      const response = await this._get(url);
 
       const data = response.data;
       const length = data?.length ?? 0;
@@ -148,7 +167,7 @@ class GitRepositoryCollector {
 
   async _collectIndividualPullRequest(pr) {
     const url = pr.data.url;
-    const response = await this.httpGetRequest(url);
+    const response = await this._get(url);
     const data = response.data;
 
     await db.models.pullRequest.findByIdAndUpdate(pr._id, {
@@ -211,7 +230,7 @@ class GitRepositoryCollector {
             requesterLogin,
             mergerLogin,
           });
-          const response = await this.httpGetRequest(url);
+          const response = await this._get(url);
 
           await db.models.followCheck.create({
             requesterLogin,
@@ -233,36 +252,8 @@ class GitRepositoryCollector {
     console.time("Total time");
 
     // Collect project data
-    {
-      const project = {
-        projectName: this.projectName,
-        projectOwner: this.projectOwner,
-      };
-      this.project = await db.models.project.findOne(project);
-
-      if (!this.project) {
-        this.project = await db.models.project.create(project);
-        await this.collectRepositoryData();
-      } else {
-        this.pullRequestsCount = await db.models.pullRequest.countDocuments({
-          project: this.project,
-        });
-      }
-
-      if (!this.project.languages) {
-        await this.collectProjectLanguages();
-      }
-    }
-
-    // Collect pull requests
-    {
-      if (!this.project.pullsCollected) {
-        await this.collectAllClosedPullRequests();
-        this.project.pullsCollected = true;
-        await this.project.save();
-      }
-    }
-
+    await this.loadProject();
+    await this.collectAllClosedPullRequests();
     await this.collectPullRequestsFiles();
     await this.collectIndividualPullRequests();
     await this.checkIfRequesterFollowMerger();

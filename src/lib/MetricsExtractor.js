@@ -1,5 +1,5 @@
-const db = require("./db");
-const { monthsUntilToday, TODAY } = require("./utils");
+const db = require("../database");
+const { monthsUntilToday, TODAY } = require("../utils");
 
 const baseNotExists = {
   $or: [{ base: { $exists: false } }, { base: null }],
@@ -44,8 +44,8 @@ class MetricsExtractor {
     const repo = project.data;
     const [{ contributorsCount }] = await db.models.pullRequest
       .aggregate()
-      .match({ project: project._id, "base.wasAccepted": true })
-      .group({ _id: "$base.pullRequester.login" })
+      .match({ project: project._id, "data.merged_at": { $ne: null } })
+      .group({ _id: "$data.user.login" })
       .count("contributorsCount");
 
     const createdAt = new Date(repo.created_at);

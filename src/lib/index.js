@@ -2,7 +2,7 @@
 
 const GitRepositoryCollector = require("./GitRepositoryCollector");
 const MetricsExtractor = require("./MetricsExtractor");
-const db = require("./db");
+const db = require("../database");
 
 async function runCollector({ projectOwner, projectName }) {
   try {
