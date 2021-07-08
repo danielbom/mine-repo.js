@@ -36,6 +36,8 @@ class GitCollector {
       const statusCode = err?.response?.status ?? 0;
       console.log(`ERROR[${statusCode}]: Request: ${url}`);
 
+      if (statusCode === 404) return {};
+
       if (statusCode === 403) {
         throw new Error("API rate limit exceeded");
       }
@@ -48,7 +50,8 @@ class GitCollector {
         }
       }
 
-      throw err;
+      console.log(err);
+      throw new Error("API untreated error");
     }
   }
 
@@ -153,6 +156,7 @@ class GitCollector {
                 await db.models.pullRequestFile.findOne({
                   "data.sha": pullRequestFile.sha,
                 });
+
               if (!pullRequestFileExists) {
                 pullRequestFile.patch = undefined;
 
@@ -184,9 +188,9 @@ class GitCollector {
 
     for await (const pr of prs) {
       await this._collectPullRequestFiles(pr);
-      await db.models.pullRequest.findByIdAndUpdate(pr._id, {
-        filesCollected: true,
-      });
+      const pullRequest = await db.models.pullRequest.findById(pr._id);
+      pullRequest.filesCollected = true;
+      await pullRequest.save();
     }
   }
 
@@ -287,6 +291,65 @@ class GitCollector {
     }
   }
 
+  async _collectPullRequestComments(pr) {
+    let page = 1;
+
+    const promises = [];
+    let running = true;
+    while (running) {
+      const url = `${pr.data.comments_url}?page=${page}`;
+      page++;
+
+      promises.push(
+        (async () => {
+          const response = await this._get(url);
+
+          const data = response.data;
+          const length = data?.length ?? 0;
+
+          await Promise.map(
+            data || [],
+            async (pullRequestComment) => {
+              const pullRequestCommentExists =
+                await db.models.pullRequestComment.findOne({
+                  "data.id": pullRequestComment.id,
+                });
+
+              if (!pullRequestCommentExists) {
+                await db.models.pullRequestComment.create({
+                  project: this.project._id,
+                  pullRequest: pr._id,
+                  data: pullRequestComment,
+                });
+              }
+            },
+            P_OPTS
+          );
+          if (length === 0) running = false;
+        })()
+      );
+
+      if (promises.length === 2) await Promise.all(promises);
+    }
+    await Promise.all(promises);
+  }
+
+  async collectAllPullRequestComments() {
+    const prs = db.models.pullRequest
+      .find({
+        project: this.project._id,
+        commentsCollected: false,
+      })
+      .stream();
+
+    for await (const pr of prs) {
+      await this._collectPullRequestComments(pr);
+      const pullRequest = await db.models.pullRequest.findById(pr._id);
+      pullRequest.commentsCollected = true;
+      await pullRequest.save();
+    }
+  }
+
   _startTimer() {
     // https://stackoverflow.com/questions/48768758/measure-process-time-with-node-js
     this.startTimer = process.hrtime();
@@ -316,6 +379,7 @@ class GitCollector {
     await this.collectIndividualPullRequests();
     await this.checkIfRequesterFollowMerger();
     await this.collectRequesterInformation();
+    await this.collectAllPullRequestComments();
     this._endTimer();
   }
 }

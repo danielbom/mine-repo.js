@@ -10,7 +10,7 @@ const config = require("../config");
 const api = axios.create({
   headers: {
     Authorization: `Bearer ${config.GITHUB_APIKEY}`,
-    Accept: "application/vnd.github.v3+json",
+    // Accept: "application/vnd.github.v3+json",
   },
 });
 

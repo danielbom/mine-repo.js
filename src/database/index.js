@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const ObjectId = { type: mongoose.Types.ObjectId, required: true };
 const RequiredString = { type: String, required: true };
 const RequiredBoolean = { type: Boolean, required: true };
+const DefaultFalse = { type: Boolean, default: false };
 
 const ProjectSchema = new mongoose.Schema(
   {
@@ -13,7 +14,7 @@ const ProjectSchema = new mongoose.Schema(
     data: Object, // Response of github API
     base: Object, // Basic data extracted
     languages: Object, // Response of github API
-    pullsCollected: { type: Boolean, default: false },
+    pullsCollected: DefaultFalse,
   },
   { timestamps: true }
 );
@@ -24,8 +25,9 @@ const PullRequestSchema = new mongoose.Schema(
     data: Object, // Response of github API
     selfData: Object, // Response of github API
     base: Object, // Basic data extracted
-    filesCollected: { type: Boolean, default: false },
-    individualPrCollected: { type: Boolean, default: false },
+    filesCollected: DefaultFalse,
+    commentsCollected: DefaultFalse,
+    individualPrCollected: DefaultFalse,
   },
   { timestamps: true }
 );
@@ -36,6 +38,15 @@ const PullRequestFileSchema = new mongoose.Schema(
     pullRequest: ObjectId,
     data: Object, // Response of github API
     base: Object, // Basic data extracted
+  },
+  { timestamps: true }
+);
+
+const PullRequestCommentSchema = new mongoose.Schema(
+  {
+    project: ObjectId,
+    pullRequest: ObjectId,
+    data: Object, // Response of github API
   },
   { timestamps: true }
 );
@@ -70,6 +81,10 @@ module.exports = {
     project: mongoose.model("Project", ProjectSchema),
     pullRequest: mongoose.model("PullRequest", PullRequestSchema),
     pullRequestFile: mongoose.model("PullRequestFile", PullRequestFileSchema),
+    pullRequestComment: mongoose.model(
+      "PullRequestComment",
+      PullRequestCommentSchema
+    ),
   },
   toId(id) {
     return mongoose.Types.ObjectId(id);
