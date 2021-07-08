@@ -1,12 +1,12 @@
 // https://docs.github.com/en/rest/reference/pulls
 
-const GitRepositoryCollector = require("./GitRepositoryCollector");
+const GitCollector = require("./GitCollector");
 const MetricsExtractor = require("./MetricsExtractor");
 const db = require("../database");
 
 async function runCollector({ projectOwner, projectName }) {
   try {
-    const collector = new GitRepositoryCollector(projectName, projectOwner);
+    const collector = new GitCollector(projectName, projectOwner);
     await collector.start();
   } catch (err) {
     return err;

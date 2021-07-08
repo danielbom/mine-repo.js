@@ -11,10 +11,11 @@ const P_OPTS = { concurrency: CONCURRENCY };
 const PULL_REQUEST_PER_PAGE = 30;
 const TIMEOUT_RETRY_DELAY = 5000;
 
-class GitRepositoryCollector {
+class GitCollector {
   constructor(projectName, projectOwner) {
     this.projectName = projectName;
     this.projectOwner = projectOwner;
+    this.identifier = `${projectOwner}:${projectName}`;
 
     this.project = null;
 
@@ -286,36 +287,37 @@ class GitRepositoryCollector {
     }
   }
 
-  async start() {
+  _startTimer() {
     // https://stackoverflow.com/questions/48768758/measure-process-time-with-node-js
-    const startTimer = process.hrtime();
+    this.startTimer = process.hrtime();
 
-    const identifier = `${this.projectOwner}:${this.projectName}`;
-    console.log(`Start Collect Pull Requests of "${identifier}"`);
+    console.log(`Start Collect Pull Requests of "${this.identifier}"`);
     console.time("Total time");
+  }
 
-    // Collect project data
+  _endTimer() {
+    const diffTimer = process.hrtime(this.startTimer);
+    console.log(`End Collect Pull Requests of "${this.identifier}"`);
+    console.timeEnd("Total time");
+
+    console.table([
+      {
+        requestsCount: this.requestsCount,
+        totalTime: Number(hrtimeMs(diffTimer).toFixed(2)),
+      },
+    ]);
+  }
+
+  async start() {
+    this._startTimer();
     await this.loadProject();
     await this.collectAllClosedPullRequests();
     await this.collectPullRequestsFiles();
     await this.collectIndividualPullRequests();
     await this.checkIfRequesterFollowMerger();
     await this.collectRequesterInformation();
-
-    // Logging end
-    {
-      const diffTimer = process.hrtime(startTimer);
-      console.log(`End Collect Pull Requests of "${identifier}"`);
-      console.timeEnd("Total time");
-
-      console.table([
-        {
-          requestsCount: this.requestsCount,
-          totalTime: Number(hrtimeMs(diffTimer).toFixed(2)),
-        },
-      ]);
-    }
+    this._endTimer();
   }
 }
 
-module.exports = GitRepositoryCollector;
+module.exports = GitCollector;
