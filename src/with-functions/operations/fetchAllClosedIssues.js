@@ -9,13 +9,13 @@ async function fetchAllClosedIssues({
 }) {
   const { timeIt } = opts;
   let page = initialPage;
+  let i = 0;
 
   while (true) {
     let length = 0;
 
-    await timeIt(`Fetching issue: page ${page}`, async () => {
+    await timeIt(`Fetching issue [${i}]: page ${page}`, async () => {
       const response = await fetchPullRequests(page);
-      page++;
 
       const data = response.data || [];
       length = safeLength(data);
@@ -24,6 +24,9 @@ async function fetchAllClosedIssues({
     });
 
     if (length === 0) break;
+
+    page++;
+    i++;
   }
 }
 

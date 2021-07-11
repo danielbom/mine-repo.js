@@ -147,12 +147,10 @@ async function _runner(projectOwner, projectName, opts) {
       await fetchPullRequestsComments({
         opts,
         getPullRequests() {
-          return db.models.pullRequest
-            .find({
-              project: project._id,
-              commentsCollected: false,
-            })
-            .stream();
+          return db.models.pullRequest.find({
+            project: project._id,
+            commentsCollected: false,
+          });
         },
         fetchPullRequestComments: (pr, page) =>
           raceFetchGet(`${pr.data.comments_url}?page=${page}`),
@@ -228,10 +226,6 @@ async function _runner(projectOwner, projectName, opts) {
 }
 
 async function runner(projectOwner, projectName) {
-  process.on("error", (_err) => {
-    db.disconnect();
-  });
-
   // Reference code of spinner
   // https://www.freecodecamp.org/news/schedule-a-job-in-node-with-nodecron/
 
@@ -247,6 +241,7 @@ async function runner(projectOwner, projectName) {
   try {
     console.time("Total time");
     await _runner(projectOwner, projectName, {
+      logger,
       identifier,
       spinner,
       async timeIt(label, func) {
@@ -272,6 +267,7 @@ async function runner(projectOwner, projectName) {
     // Print the error message on the terminal
     logger.error(err.message);
     logger.error(err.stack);
+    await db.disconnect();
   }
 }
 

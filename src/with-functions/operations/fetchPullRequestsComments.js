@@ -9,15 +9,19 @@ async function fetchPullRequestsComments({
   storePullRequestComment,
 }) {
   const { timeIt } = opts;
-  const pullRequests = getPullRequests();
+  const pullRequests = await getPullRequests();
+  const count = pullRequests.length;
 
-  for await (const pr of pullRequests) {
+  opts.logger.info("Pull requests count: " + count);
+  for (let i = 0; i < count; i++) {
+    const pr = pullRequests[i];
     let page = 1;
 
     while (true) {
       let length = 0;
 
-      await timeIt(`Fetching issue comment: page ${page}`, async () => {
+      const label = `Fetching pull request comments [${i}|${count}]: page ${page}`;
+      await timeIt(label, async () => {
         const response = await fetchPullRequestComments(pr, page);
         page++;
 

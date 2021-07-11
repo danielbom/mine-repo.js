@@ -6,9 +6,13 @@ async function fetchIndividualPullRequests({
 }) {
   const { timeIt } = opts;
   const pullRequests = await getPullRequests();
+  const count = pullRequests.length;
 
-  for (const pr of pullRequests) {
-    await timeIt(`Fetching individual pull request`, async () => {
+  opts.logger.info("Pull requests count: " + count);
+  for (let i = 0; i < count; i++) {
+    const pr = pullRequests[i];
+    const label = `Fetching individual pull request [${i}|${count}]`;
+    await timeIt(label, async () => {
       const response = await fetchIndividualPullRequest(pr);
       await storeIndividualPullRequest(pr, response.data);
     });

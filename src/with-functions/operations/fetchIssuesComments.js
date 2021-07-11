@@ -10,14 +10,18 @@ async function fetchIssuesComments({
 }) {
   const { timeIt } = opts;
   const issues = await getIssues();
+  const count = issues.length;
 
-  for (const isu of issues) {
+  opts.logger.info("Issues count: " + count);
+  for (let i = 0; i < count; i++) {
+    const isu = issues[i];
     let page = 1;
 
     while (true) {
       let length = 0;
 
-      await timeIt(`Fetching issue comment: page ${page}`, async () => {
+      const label = `Fetching issue comment [${i}|${count}]: page ${page}`;
+      await timeIt(label, async () => {
         const response = await fetchIssueComments(isu, page);
         page++;
 
