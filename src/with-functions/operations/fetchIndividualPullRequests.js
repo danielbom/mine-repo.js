@@ -3,9 +3,9 @@ async function fetchIndividualPullRequests({
   fetchIndividualPullRequest,
   storeIndividualPullRequest,
 }) {
-  const pullRequests = getPullRequests();
+  const pullRequests = await getPullRequests();
 
-  for await (const pr of pullRequests) {
+  for (const pr of pullRequests) {
     const response = await fetchIndividualPullRequest(pr);
     await storeIndividualPullRequest(pr, response.data);
   }

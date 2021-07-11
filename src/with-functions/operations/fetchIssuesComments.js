@@ -9,9 +9,9 @@ async function fetchIssuesComments({
   storeIssueComment,
 }) {
   const { timeIt } = opts;
-  const issues = getIssues();
+  const issues = await getIssues();
 
-  for await (const isu of issues) {
+  for (const isu of issues) {
     let page = 1;
 
     while (true) {

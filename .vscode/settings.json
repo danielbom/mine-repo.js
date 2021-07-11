@@ -5,4 +5,10 @@
     "editor.quickSuggestions": false
   },
   "editor.formatOnSave": true,
+  "logViewer.watch": [
+    {
+      "title": "Demo App",
+      "pattern": "./logs/*"
+    },
+  ]
 }

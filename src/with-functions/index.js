@@ -19,10 +19,12 @@ const getClosedPullRequestsUrl = require("./operations/getClosedPullRequestsUrl"
 const getClosedIssuesUrl = require("./operations/getClosedIssuesUrl");
 
 const logger = require("./logger");
+const parseMillisecondsIntoReadableTime = require("./parseMillisecondsIntoReadableTime");
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 async function raceFetchGet(url) {
+  logger.info(url);
   const [data] = await Promise.all([api.get(url), sleep(400)]);
   return data;
 }
@@ -120,17 +122,16 @@ async function _runner(projectOwner, projectName, opts) {
     await timeIt("Collecting individual pull requests", async () => {
       fetchIndividualPullRequests({
         getPullRequests() {
-          return db.models.pullRequest
-            .find({
-              project: project._id,
-              individualPrCollected: false,
-            })
-            .stream();
+          return db.models.pullRequest.find({
+            project: project._id,
+            individualPrCollected: false,
+          });
         },
         fetchIndividualPullRequest: (pr) => raceFetchGet(pr.data.url),
         async storeIndividualPullRequest(pr, data) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.selfData = data;
+          pullRequest.individualPrCollected = true;
           await pullRequest.save();
         },
       });
@@ -184,12 +185,10 @@ async function _runner(projectOwner, projectName, opts) {
       await fetchIssuesComments({
         opts,
         getIssues() {
-          return db.models.issue
-            .find({
-              project: project._id,
-              commentsCollected: false,
-            })
-            .stream();
+          return db.models.issue.find({
+            project: project._id,
+            commentsCollected: false,
+          });
         },
         async onFetchCommentsComplete(isu) {
           const issue = await db.models.issue.findById(isu._id);
@@ -250,7 +249,13 @@ async function runner(projectOwner, projectName) {
 
         const date = Date.now();
         await func();
-        logger.info(`${label}: ${Date.now() - date}ms`);
+
+        const ms = Date.now() - date;
+        if (ms > 10000) {
+          logger.info(`${label}: ${parseMillisecondsIntoReadableTime(ms)}`);
+        } else {
+          logger.info(`${label}: ${ms}ms`);
+        }
       },
     });
     console.timeEnd("Total time");

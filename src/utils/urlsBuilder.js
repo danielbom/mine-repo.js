@@ -3,7 +3,7 @@ const urlsBuilder = ({ projectOwner, projectName }) => ({
     return `https://api.github.com/repos/${projectOwner}/${projectName}`;
   },
   getClosedPullRequests({ page }) {
-    return `https://api.github.com/repos/${projectOwner}/${projectName}/pulls?state="closed"&page=${page}`;
+    return `https://api.github.com/repos/${projectOwner}/${projectName}/pulls?state=closed&page=${page}`;
   },
   getLanguages() {
     return `https://api.github.com/repos/${projectOwner}/${projectName}/languages`;
