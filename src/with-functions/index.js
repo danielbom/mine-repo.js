@@ -25,7 +25,7 @@ const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
 async function raceFetchGet(url) {
   logger.info(url);
-  const [data] = await Promise.all([api.get(url), sleep(400)]);
+  const [data] = await Promise.all([api.get(url), sleep(800)]);
   return data;
 }
 
@@ -228,6 +228,10 @@ async function _runner(projectOwner, projectName, opts) {
 }
 
 async function runner(projectOwner, projectName) {
+  process.on("error", (_err) => {
+    db.disconnect();
+  });
+
   // Reference code of spinner
   // https://www.freecodecamp.org/news/schedule-a-job-in-node-with-nodecron/
 
