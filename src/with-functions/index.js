@@ -120,7 +120,8 @@ async function _runner(projectOwner, projectName, opts) {
 
   if (!project.individualPrCollected) {
     await timeIt("Collecting individual pull requests", async () => {
-      fetchIndividualPullRequests({
+      await fetchIndividualPullRequests({
+        opts,
         getPullRequests() {
           return db.models.pullRequest.find({
             project: project._id,
@@ -265,7 +266,8 @@ async function runner(projectOwner, projectName) {
     // Remove the spinner from the terminal
     spinner.clear();
     // Print the error message on the terminal
-    logger.error(err);
+    logger.error(err.message);
+    logger.error(err.stack);
   }
 }
 
