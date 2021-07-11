@@ -225,7 +225,7 @@ async function _runner(projectOwner, projectName, opts) {
   await db.disconnect();
 }
 
-async function runner(projectOwner, projectName) {
+async function runner(projectOwner, projectName, tries = 0) {
   // Reference code of spinner
   // https://www.freecodecamp.org/news/schedule-a-job-in-node-with-nodecron/
 
@@ -268,6 +268,13 @@ async function runner(projectOwner, projectName) {
     logger.error(err.message);
     logger.error(err.stack);
     await db.disconnect();
+
+    // retry
+    if (tries < 3) {
+      logger.info("Waiting 1 min. to try again...");
+      await sleep(60_000);
+      await runner(projectOwner, projectName, tries + 1);
+    }
   }
 }
 
