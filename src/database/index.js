@@ -88,6 +88,19 @@ const FollowCheckSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+const models = {
+  followCheck: mongoose.model("FollowCheck", FollowCheckSchema),
+  project: mongoose.model("Project", ProjectSchema),
+  issue: mongoose.model("Issue", IssueSchema),
+  issueComment: mongoose.model("IssueComment", IssueCommentSchema),
+  pullRequest: mongoose.model("PullRequest", PullRequestSchema),
+  pullRequestFile: mongoose.model("PullRequestFile", PullRequestFileSchema),
+  pullRequestComment: mongoose.model(
+    "PullRequestComment",
+    PullRequestCommentSchema
+  ),
+};
+
 module.exports = {
   connect() {
     return mongoose.connect(config.MONGODB_URI, {
@@ -100,18 +113,11 @@ module.exports = {
   disconnect() {
     return mongoose.disconnect();
   },
-  models: {
-    followCheck: mongoose.model("FollowCheck", FollowCheckSchema),
-    project: mongoose.model("Project", ProjectSchema),
-    issue: mongoose.model("Issue", IssueSchema),
-    issueComment: mongoose.model("IssueComment", IssueCommentSchema),
-    pullRequest: mongoose.model("PullRequest", PullRequestSchema),
-    pullRequestFile: mongoose.model("PullRequestFile", PullRequestFileSchema),
-    pullRequestComment: mongoose.model(
-      "PullRequestComment",
-      PullRequestCommentSchema
-    ),
+  async clear() {
+    const values = Object.values(models);
+    await Promise.all(values.map((model) => model.deleteMany({})));
   },
+  models,
   toId(id) {
     return mongoose.Types.ObjectId(id);
   },

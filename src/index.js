@@ -1,13 +1,14 @@
 // const runner = require("./with-class");
 const runner = require("./with-functions");
+const db = require("./database");
 
 const args = process.argv.slice(2);
 
 const cmd = args.shift();
 
 function help() {
-  console.error("Usage: yarn start project [project-owner] [project-name]");
-  console.error("Usage: yarn start file [filename]");
+  console.error("Usage: yarn mine project [project-owner] [project-name]");
+  console.error("Usage: yarn mine file [filename]");
 }
 
 switch (cmd) {
@@ -21,6 +22,12 @@ switch (cmd) {
     break;
   }
   case "file": {
+    break;
+  }
+  case "clear": {
+    db.connect()
+      .then(() => db.clear())
+      .then(() => db.disconnect());
     break;
   }
   default: {
