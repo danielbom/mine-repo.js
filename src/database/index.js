@@ -15,6 +15,10 @@ const ProjectSchema = new mongoose.Schema(
     base: Object, // Basic data extracted
     languages: Object, // Response of github API
     pullsCollected: DefaultFalse,
+    issuesCollected: DefaultFalse,
+    individualPrCollected: DefaultFalse,
+    commentsPrCollected: DefaultFalse,
+    commentsIssueCollected: DefaultFalse,
   },
   { timestamps: true }
 );
@@ -28,6 +32,26 @@ const PullRequestSchema = new mongoose.Schema(
     filesCollected: DefaultFalse,
     commentsCollected: DefaultFalse,
     individualPrCollected: DefaultFalse,
+  },
+  { timestamps: true }
+);
+
+const IssueSchema = new mongoose.Schema(
+  {
+    project: ObjectId,
+    data: Object, // Response of github API
+    selfData: Object, // Response of github API
+    base: Object, // Basic data extracted
+    commentsCollected: DefaultFalse,
+  },
+  { timestamps: true }
+);
+
+const IssueCommentSchema = new mongoose.Schema(
+  {
+    project: ObjectId,
+    issue: ObjectId,
+    data: Object, // Response of github API
   },
   { timestamps: true }
 );
@@ -79,6 +103,8 @@ module.exports = {
   models: {
     followCheck: mongoose.model("FollowCheck", FollowCheckSchema),
     project: mongoose.model("Project", ProjectSchema),
+    issue: mongoose.model("Issue", IssueSchema),
+    issueComment: mongoose.model("IssueComment", IssueCommentSchema),
     pullRequest: mongoose.model("PullRequest", PullRequestSchema),
     pullRequestFile: mongoose.model("PullRequestFile", PullRequestFileSchema),
     pullRequestComment: mongoose.model(

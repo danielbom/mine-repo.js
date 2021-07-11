@@ -1,4 +1,5 @@
-const runner = require("./with-class");
+// const runner = require("./with-class");
+const runner = require("./with-functions");
 
 const args = process.argv.slice(2);
 
