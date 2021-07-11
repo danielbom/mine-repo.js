@@ -1,4 +1,4 @@
-const runner = require("./lib");
+const runner = require("./with-class");
 
 const args = process.argv.slice(2);
 

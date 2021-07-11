@@ -22,8 +22,8 @@ async function runner(projectOwner, projectName) {
 
   const error = await runCollector({ projectOwner, projectName });
 
-  const extractor = new MetricsExtractor();
-  await extractor.start();
+  // const extractor = new MetricsExtractor();
+  // await extractor.start();
 
   await db.disconnect();
 
