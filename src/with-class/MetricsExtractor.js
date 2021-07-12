@@ -1,5 +1,5 @@
 const db = require("../database");
-const { monthsUntilToday, TODAY } = require("../utils");
+const { monthsUntilToday, TODAY } = require("./utils");
 
 const baseNotExists = {
   $or: [{ base: { $exists: false } }, { base: null }],

@@ -1,7 +1,7 @@
 const Promise = require("bluebird");
 
 const db = require("../database");
-const { hrtimeMs, urlsBuilder, sleep } = require("../utils");
+const { hrtimeMs, urlsBuilder, sleep } = require("./utils");
 
 const api = require("../apis/github");
 
