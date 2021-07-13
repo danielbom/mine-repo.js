@@ -16,11 +16,12 @@ async function fetchIssuesComments({
   for (let i = 0; i < count; i++) {
     const isu = issues[i];
     let page = 1;
+    const percentage = ((i / count) * 100).toFixed(0);
 
     while (true) {
       let length = 0;
 
-      const label = `Fetching issue comment [${i}|${count}]: page ${page}`;
+      const label = `Fetching issue comment: page(${page}) [${i}|${count}] ${percentage}%`;
       await timeIt(label, async () => {
         const response = await fetchIssueComments(isu, page);
         page++;

@@ -14,7 +14,7 @@ async function fetchAllClosedIssues({
   while (true) {
     let length = 0;
 
-    await timeIt(`Fetching issue [${i}]: page ${page}`, async () => {
+    await timeIt(`Fetching issue: page(${page}) [${i}]`, async () => {
       const response = await fetchPullRequests(page);
 
       const data = response.data || [];

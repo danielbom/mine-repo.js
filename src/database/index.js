@@ -19,6 +19,8 @@ const ProjectSchema = new mongoose.Schema(
     individualPrCollected: DefaultFalse,
     commentsPrCollected: DefaultFalse,
     commentsIssueCollected: DefaultFalse,
+    isFollowsCollected: DefaultFalse,
+    requestersCollected: DefaultFalse,
   },
   { timestamps: true }
 );
@@ -32,6 +34,8 @@ const PullRequestSchema = new mongoose.Schema(
     filesCollected: DefaultFalse,
     commentsCollected: DefaultFalse,
     individualPrCollected: DefaultFalse,
+    isFollowsCollected: DefaultFalse,
+    requestersCollected: DefaultFalse,
   },
   { timestamps: true }
 );
@@ -83,7 +87,15 @@ const FollowCheckSchema = new mongoose.Schema(
     mergerLogin: RequiredString,
     following: RequiredBoolean,
     sameAsMerger: RequiredBoolean,
-    data: Object, // requesterLogin data: Response of github API
+  },
+  { timestamps: true }
+);
+
+const PullRequestRequesterSchema = new mongoose.Schema(
+  {
+    project: ObjectId,
+    requesterLogin: { type: String, required: true, unique: true },
+    data: Object, // Response of github API
   },
   { timestamps: true }
 );
@@ -98,6 +110,10 @@ const models = {
   pullRequestComment: mongoose.model(
     "PullRequestComment",
     PullRequestCommentSchema
+  ),
+  pullRequestRequester: mongoose.model(
+    "PullRequestRequester",
+    PullRequestRequesterSchema
   ),
 };
 

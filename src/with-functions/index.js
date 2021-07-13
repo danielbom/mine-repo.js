@@ -10,22 +10,39 @@ const fetchAllClosedIssues = require("./operations/fetchAllClosedIssues");
 const fetchIndividualPullRequests = require("./operations/fetchIndividualPullRequests");
 const fetchPullRequestsComments = require("./operations/fetchPullRequestsComments");
 const fetchIssuesComments = require("./operations/fetchIssuesComments");
+const fetchPullRequestsIsFollows = require("./operations/fetchPullRequestsIsFollows");
+const fetchIndividualRequesters = require("./operations/fetchIndividualRequesters");
 
 const getInitialPullRequestPage = require("./operations/getInitialPullRequestPage");
 const getInitialIssuesPage = require("./operations/getInitialIssuesPage");
 
 const getProjectUrl = require("./operations/getProjectUrl");
-const getClosedPullRequestsUrl = require("./operations/getClosedPullRequestsUrl");
 const getClosedIssuesUrl = require("./operations/getClosedIssuesUrl");
+const getUserInformationUrl = require("./operations/getUserInformationUrl");
+const getClosedPullRequestsUrl = require("./operations/getClosedPullRequestsUrl");
+const getRequesterFollowsMergerUrl = require("./operations/getRequesterFollowsMergerUrl");
 
 const logger = require("./logger");
 const parseMillisecondsIntoReadableTime = require("./parseMillisecondsIntoReadableTime");
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
+async function catchSafeErrors(err) {
+  if (err.isAxiosError) {
+    switch (err.response.status) {
+      case 404:
+        return err.response;
+    }
+  }
+  throw err;
+}
+
 async function raceFetchGet(url) {
   logger.info(url);
-  const [data] = await Promise.all([api.get(url), sleep(800)]);
+  const [data] = await Promise.all([
+    api.get(url).catch(catchSafeErrors),
+    sleep(500),
+  ]);
   return data;
 }
 
@@ -180,7 +197,7 @@ async function _runner(projectOwner, projectName, opts) {
   }
 
   if (!project.commentsIssueCollected) {
-    await timeIt("Collecting issues comments", async () => {
+    await timeIt("Collecting all issues comments", async () => {
       await fetchIssuesComments({
         opts,
         getIssues() {
@@ -216,6 +233,100 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  if (!project.isFollowsCollected) {
+    await timeIt("Collecting if requester follows merger", async () => {
+      await fetchPullRequestsIsFollows({
+        opts,
+        getPullRequests() {
+          return db.models.pullRequest.find({
+            project: project._id,
+            isFollowsCollected: false,
+            "selfData.merged_by": { $ne: null },
+          });
+        },
+        async checkMustFetch({ mergerLogin, requesterLogin }) {
+          const exists = await db.models.followCheck.findOne({
+            project: project._id,
+            mergerLogin,
+            requesterLogin,
+          });
+          return !exists;
+        },
+        mapPullRequestToData: (pr) => ({
+          requesterLogin: pr.data.user.login,
+          mergerLogin: pr.selfData.merged_by.login,
+        }),
+        requesterIsSameAsMerger: (data) =>
+          data.requesterLogin === data.mergerLogin,
+        async fetchRequesterIsFollows(data) {
+          const url = getRequesterFollowsMergerUrl(data);
+          const request = await raceFetchGet(url);
+          return request.status === 204;
+        },
+        async onFetchIsFollowsComplete(pr) {
+          const pullRequest = await db.models.pullRequest.findById(pr._id);
+          pullRequest.isFollowsCollected = true;
+          await pullRequest.save();
+        },
+        async storePullRequestIsFollows(
+          pr,
+          { mergerLogin, requesterLogin },
+          { following, sameAsMerger }
+        ) {
+          await db.models.followCheck.create({
+            project: project._id,
+            pullRequest: pr._id,
+            requesterLogin,
+            mergerLogin,
+            following,
+            sameAsMerger,
+          });
+        },
+      });
+
+      project.isFollowsCollected = true;
+      await project.save();
+    });
+  }
+
+  if (!project.requestersCollected) {
+    await timeIt("Collecting pull request requesters", async () => {
+      await fetchIndividualRequesters({
+        opts,
+        getPullRequests() {
+          return db.models.pullRequest.find({
+            project: project._id,
+            requestersCollected: false,
+          });
+        },
+        mapPullRequestToData: (pr) => pr.data.user.login,
+        async checkMustFetch(requesterLogin) {
+          const exists = await db.models.pullRequestRequester.findOne({
+            requesterLogin,
+          });
+          return !exists;
+        },
+        async onFetchProjectComplete(pr) {
+          const pullRequest = await db.models.pullRequest.findById(pr._id);
+          pullRequest.requestersCollected = true;
+          await pullRequest.save();
+        },
+        fetchPullRequestRequester: (requesterLogin) =>
+          raceFetchGet(getUserInformationUrl(requesterLogin)),
+        async storeProjectRequesterData(requesterLogin, data) {
+          await db.models.pullRequestRequester.create({
+            project: project._id,
+            requesterLogin,
+            data,
+          });
+        },
+      });
+
+      project.isFollowsCollected = true;
+      await project.save();
+    });
+  }
+
   {
     const msg = `Project ${opts.identifier} collected successfully`;
     logger.info(msg);
@@ -246,6 +357,7 @@ async function runner(projectOwner, projectName, tries = 0) {
       spinner,
       async timeIt(label, func) {
         spinner.text = label;
+        logger.info(label);
 
         const date = Date.now();
         await func();
@@ -258,7 +370,6 @@ async function runner(projectOwner, projectName, tries = 0) {
         }
       },
     });
-    console.timeEnd("Total time");
   } catch (err) {
     // Print failed on the terminal if scraping is unsuccessful
     spinner.fail(`Error on mining the project ${identifier}`);
@@ -270,11 +381,13 @@ async function runner(projectOwner, projectName, tries = 0) {
     await db.disconnect();
 
     // retry
-    if (tries < 3) {
+    if (err.isAxiosError && tries < 3) {
       logger.info("Waiting 1 min. to try again...");
       await sleep(60_000);
-      await runner(projectOwner, projectName, tries + 1);
+      await runner(projectOwner, projectName, 0);
     }
+  } finally {
+    console.timeEnd("Total time");
   }
 }
 

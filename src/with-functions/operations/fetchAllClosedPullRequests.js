@@ -14,7 +14,7 @@ async function fetchAllClosedPullRequests({
   while (true) {
     let length = 0;
 
-    await timeIt(`Fetching pull requests [${i}]:: page ${page}`, async () => {
+    await timeIt(`Fetching pull requests: page(${page}) [${i}]`, async () => {
       const response = await fetchPullRequests(page);
 
       const data = response.data || [];

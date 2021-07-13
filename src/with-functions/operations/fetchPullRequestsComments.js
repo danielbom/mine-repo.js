@@ -16,11 +16,12 @@ async function fetchPullRequestsComments({
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     let page = 1;
+    const percentage = ((i / count) * 100).toFixed(0);
 
     while (true) {
       let length = 0;
 
-      const label = `Fetching pull request comments [${i}|${count}]: page ${page}`;
+      const label = `Fetching pull request comments: page(${page}) [${i}|${count}] ${percentage}%`;
       await timeIt(label, async () => {
         const response = await fetchPullRequestComments(pr, page);
         page++;
