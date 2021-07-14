@@ -13,6 +13,8 @@ const fetchIssuesComments = require("./operations/fetchIssuesComments");
 const fetchPullRequestsIsFollows = require("./operations/fetchPullRequestsIsFollows");
 const fetchIndividualRequesters = require("./operations/fetchIndividualRequesters");
 
+const measurePullRequestLastIterations = require("./operations/measurePullRequestLastIterations");
+
 const getInitialPullRequestPage = require("./operations/getInitialPullRequestPage");
 const getInitialIssuesPage = require("./operations/getInitialIssuesPage");
 
@@ -328,6 +330,46 @@ async function _runner(projectOwner, projectName, opts) {
   }
 
   {
+    function countBy(xs, pred) {
+      return xs.reduce((acc, x) => (pred(x) ? acc + 1 : acc), 0);
+    }
+    function countLastIteration(xs, pr) {
+      return countBy(
+        xs,
+        (x) =>
+          x.data.user.login === pr.data.user.login &&
+          x.data.created_at < pr.data.created_at
+      );
+    }
+
+    await timeIt("Measure pull request last iterations", async () => {
+      await measurePullRequestLastIterations({
+        getPullRequests: () =>
+          db.models.pullRequest.find({ project: project._id }).lean(),
+        getPullRequestComments: () =>
+          db.models.pullRequestComment.find({ project: project._id }).lean(),
+        getIssues: () => db.models.issue.find({ project: project._id }).lean(),
+        getIssuesComments: () =>
+          db.models.issueComment.find({ project: project._id }).lean(),
+
+        async calcPullRequestsIterations(elements, pr) {
+          return (
+            countLastIteration(elements.pullRequests, pr) +
+            countLastIteration(elements.pullRequestComments, pr) +
+            countLastIteration(elements.issues, pr) +
+            countLastIteration(elements.issueComments, pr)
+          );
+        },
+        async updatePullRequestIterations(pr, iterations) {
+          const pullRequest = await db.models.pullRequest.findById(pr._id);
+          pullRequest.lastIterationsCount = iterations;
+          await pullRequest.save();
+        },
+      });
+    });
+  }
+
+  {
     const msg = `Project ${opts.identifier} collected successfully`;
     logger.info(msg);
     opts.spinner.succeed(msg);
@@ -336,7 +378,15 @@ async function _runner(projectOwner, projectName, opts) {
   await db.disconnect();
 }
 
-async function runner(projectOwner, projectName, tries = 0) {
+const ONE_MINUTE = 60_000;
+const DEFAULT_RESTART_DELAY = 60_000;
+
+async function runner(
+  projectOwner,
+  projectName,
+  tries = 0,
+  nextTime = DEFAULT_RESTART_DELAY
+) {
   // Reference code of spinner
   // https://www.freecodecamp.org/news/schedule-a-job-in-node-with-nodecron/
 
@@ -382,9 +432,27 @@ async function runner(projectOwner, projectName, tries = 0) {
 
     // retry
     if (err.isAxiosError && tries < 3) {
-      logger.info("Waiting 1 min. to try again...");
-      await sleep(60_000);
-      await runner(projectOwner, projectName, 0);
+      const now = new Date();
+      const next = new Date(now.getTime() + nextTime);
+
+      // New nextTime is 2 times the previous
+      let newNextTime =
+        next.getHours() !== now.getHours()
+          ? DEFAULT_RESTART_DELAY
+          : nextTime * 2;
+
+      // If is limit error, await until next hour
+      if (err.response.status === 403) {
+        const minutes = new Date().getMinutes();
+        nextTime = minutes === 0 ? ONE_MINUTE : (60 - minutes) * ONE_MINUTE;
+        newNextTime = ONE_MINUTE;
+      }
+
+      const nextTimeStr = parseMillisecondsIntoReadableTime(nextTime);
+      logger.info(`Waiting ${nextTimeStr} to try again...`);
+      await sleep(nextTime);
+
+      await runner(projectOwner, projectName, 0, newNextTime);
     }
   } finally {
     console.timeEnd("Total time");
