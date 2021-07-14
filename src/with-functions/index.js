@@ -420,7 +420,6 @@ async function _runner(projectOwner, projectName, opts) {
   await db.disconnect();
 }
 
-const ONE_MINUTE = 60_000;
 const DEFAULT_RESTART_DELAY = 60_000;
 
 async function runner(
@@ -431,6 +430,8 @@ async function runner(
 ) {
   // Reference code of spinner
   // https://www.freecodecamp.org/news/schedule-a-job-in-node-with-nodecron/
+
+  let apiLimitReached = false;
 
   const identifier = `${projectOwner}/${projectName}`;
   const msg = `Starting mining the project ${identifier}`;
@@ -463,42 +464,29 @@ async function runner(
       },
     });
   } catch (err) {
-    // Print failed on the terminal if scraping is unsuccessful
     spinner.fail(`Error on mining the project ${identifier}`);
-    // Remove the spinner from the terminal
     spinner.clear();
-    // Print the error message on the terminal
+
     logger.error(err.message);
     logger.error(err.stack);
+
     await db.disconnect();
 
-    // retry
-    if (err.isAxiosError && tries < 3) {
-      const now = new Date();
-      const next = new Date(now.getTime() + nextTime);
-
-      // New nextTime is 2 times the previous
-      let newNextTime =
-        next.getHours() !== now.getHours()
-          ? DEFAULT_RESTART_DELAY
-          : nextTime * 2;
-
-      // If is limit error, await until next hour
-      if (err.response.status === 403) {
-        logger.info("API limit reached");
-        const minutes = new Date().getMinutes();
-        nextTime = minutes === 0 ? ONE_MINUTE : (60 - minutes) * ONE_MINUTE;
-        newNextTime = ONE_MINUTE;
-      }
-
-      const nextTimeStr = parseMillisecondsIntoReadableTime(nextTime);
-      logger.info(`Waiting ${nextTimeStr} to try again...`);
-      await sleep(nextTime);
-
-      await runner(projectOwner, projectName, 0, newNextTime);
+    if (err.isAxiosError) {
+      apiLimitReached = err.response.status === 403;
     }
   } finally {
     console.timeEnd("Total time");
+  }
+
+  // retry
+  if (tries < 3) {
+    if (apiLimitReached) {
+      logger.info("API limit reached");
+      logger.info("Waiting 1 min to try again...");
+      await sleep(nextTime);
+      await runner(projectOwner, projectName, 0, nextTime);
+    }
   }
 }
 
