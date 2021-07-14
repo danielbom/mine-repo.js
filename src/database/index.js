@@ -22,6 +22,7 @@ const ProjectSchema = new mongoose.Schema(
     commentsIssueCollected: DefaultFalse,
     isFollowsCollected: DefaultFalse,
     requestersCollected: DefaultFalse,
+    filesCollected: DefaultFalse,
   },
   { timestamps: true }
 );

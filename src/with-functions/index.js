@@ -12,6 +12,7 @@ const fetchPullRequestsComments = require("./operations/fetchPullRequestsComment
 const fetchIssuesComments = require("./operations/fetchIssuesComments");
 const fetchPullRequestsIsFollows = require("./operations/fetchPullRequestsIsFollows");
 const fetchIndividualRequesters = require("./operations/fetchIndividualRequesters");
+const fetchPullRequestFiles = require("./operations/fetchPullRequestFiles");
 
 const measurePullRequestLastIterations = require("./operations/measurePullRequestLastIterations");
 
@@ -291,6 +292,47 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  if (!project.filesCollected) {
+    await timeIt("Collecting pull requests files", async () => {
+      await fetchPullRequestFiles({
+        opts,
+        getPullRequests() {
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              filesCollected: false,
+            })
+            .lean();
+        },
+        fetchFiles: (pr, page) =>
+          raceFetchGet(`${pr.data.url}/files?page=${page}`),
+        async onFetchFilesComplete(pr) {
+          const pullRequest = await db.models.pullRequest.findById(pr._id);
+          pullRequest.filesCollected = true;
+          await pullRequest.save();
+        },
+        async storePullRequestFile(pr, data) {
+          const exists = await db.models.pullRequestFile.findOne({
+            project: project._id,
+            pullRequest: pr._id,
+            "data.sha": data.sha,
+          });
+
+          if (!exists) {
+            await db.models.pullRequestFile.create({
+              project: project._id,
+              pullRequest: pr._id,
+              data,
+            });
+          }
+        },
+      });
+
+      project.filesCollected = true;
+      await project.save();
+    });
+  }
+
   if (!project.requestersCollected) {
     await timeIt("Collecting pull request requesters", async () => {
       await fetchIndividualRequesters({
@@ -443,6 +485,7 @@ async function runner(
 
       // If is limit error, await until next hour
       if (err.response.status === 403) {
+        logger.info("API limit reached");
         const minutes = new Date().getMinutes();
         nextTime = minutes === 0 ? ONE_MINUTE : (60 - minutes) * ONE_MINUTE;
         newNextTime = ONE_MINUTE;
