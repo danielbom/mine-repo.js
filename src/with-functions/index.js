@@ -395,16 +395,19 @@ async function _runner(projectOwner, projectName, opts) {
           db.models.issueComment.find({ project: project._id }).lean(),
 
         async calcPullRequestsIterations(elements, pr) {
-          return (
-            countLastIteration(elements.pullRequests, pr) +
-            countLastIteration(elements.pullRequestComments, pr) +
-            countLastIteration(elements.issues, pr) +
-            countLastIteration(elements.issueComments, pr)
-          );
+          return {
+            pullRequests: countLastIteration(elements.pullRequests, pr),
+            prsComments: countLastIteration(elements.pullRequestComments, pr),
+            issues: countLastIteration(elements.issues, pr),
+            issueComments: countLastIteration(elements.issueComments, pr),
+          };
         },
-        async updatePullRequestIterations(pr, iterations) {
+        async updatePullRequestIterations(pr, counts) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
-          pullRequest.lastIterationsCount = iterations;
+          pullRequest.pullRequestsCount = counts.pullRequests;
+          pullRequest.prsCommentsCount = counts.prsComments;
+          pullRequest.issuesCount = counts.issues;
+          pullRequest.issueCommentsCount = counts.issueComments;
           await pullRequest.save();
         },
       });

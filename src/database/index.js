@@ -33,7 +33,10 @@ const PullRequestSchema = new mongoose.Schema(
     data: RequiredObject, // Response of github API
     selfData: Object, // Response of github API
     base: Object, // Basic data extracted
-    lastIterationsCount: Number,
+    pullRequestsCount: Number,
+    prsCommentsCount: Number,
+    issuesCount: Number,
+    issueCommentsCount: Number,
     filesCollected: DefaultFalse,
     commentsCollected: DefaultFalse,
     individualPrCollected: DefaultFalse,
