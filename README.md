@@ -22,29 +22,63 @@ yarn # Para instalar as dependencias
 yarn mongo JabRef jabref
 ```
 
+## TODO
+
+* Visualizar os repositórios no banco de dados
+* Calcular tempo de execução no repositório do "jabref"
+* Gerar o CSV: 
+  * campos boleanos devem ser representados com 0 e 1.
+  * campos sem valor devem ficar vazios
+  * `age` deve ser representado em meses
+  * campos na seguinte order:
+    - project_name            string        projeto
+    - language                string        projeto
+    - age                     int           projeto
+    - stars                   int           projeto
+    - contributors_count      int           projeto
+    - submitter_login         string        pull request
+    - merger_login            string        pull request
+    - pull_request_id         int           pull request
+    - files_changed_count     int           pull request
+    - changed_counts          int           pull request
+    - is_merged               bool          pull request
+    - pr_comments_count       int           pull request
+    - test_is_included        bool          pull request
+    - followers_count         int           usuário
+    - is_collaborator         bool          usuário
+    - prior_iterations_count  bool          usuário
+
+https://api.github.com/repos/{}/contributors
+
 ## Dados coletadas.
 
 - [x] Projeto
   - [x] Nome do projeto
   - [x] Idade do projeto
+  - [x] Linguagem
   - [x] Número de estrelas
-    - [x] Número de colaboradores
+  - [x] Número de colaboradores
     - [x] Quantidade de pessoas que tiveram um pull request aceito
     - [x] Verificar se a contagem foi feita corretamente
 - [x] Informação de um **pull request** fechado
+  - [x] Login de quem solicitou
+  - [x] Login de quem aceitou (Gerente)
   - [x] Número de linhas modificadas, removidas e adicionadas
   - [x] Quantidade de arquivos alterados, removidos e adicionados
   - [x] Existem testes (caminhos dos arquivos contém "test")
   - [x] O pull request foi aceito
   - [x] Solicitante é seguidor do gerente que aceitou
   - [x] Quantidade de comentários
-- [ ] Informações de usuários
-  - [ ] É um coladorador?
-    - [ ] Tem a permissão de fazer commits no projeto.
-    - [ ] `author_association` ("NONE" | "MEMBER" | "COLLABORATOR" | "CONTRIBUTOR")
-      - [ ] Verificar o significado deste atributo.
+- [x] Informações de usuários
+  - [x] É um coladorador?
+    - [x] Tem a permissão de fazer commits no projeto.
+    - [x] Se existir um PR aceito, ele é um colaborador?
+      - [x]`author_association` = "CONTRIBUTOR"
+      - Não
+    - [x] `author_association` ("NONE" | **"MEMBER"** | **"COLLABORATOR"** | "CONTRIBUTOR")
+      - [x] Verificar o significado deste atributo.
   - [x] Número de seguidores
-  - [ ] Contagem das interações do usuário com o repositório antes do pull request
+  - [x] Contagem das interações do usuário com o repositório antes do pull request
 
 ## Referencias
 
