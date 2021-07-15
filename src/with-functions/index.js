@@ -2,6 +2,8 @@ const ora = require("ora");
 
 const db = require("../database");
 const api = require("../apis/github");
+const config = require("../config");
+
 const loadProject = require("./operations/loadProject");
 
 const fetchProjectData = require("./operations/fetchProjectData");
@@ -51,7 +53,7 @@ async function raceFetchGet(url) {
 
 async function _runner(projectOwner, projectName, opts) {
   const { timeIt } = opts;
-  const TOTAL_STEPS = 7;
+  const TOTAL_STEPS = 9;
   let step = 0;
 
   opts.spinner.start();
@@ -64,7 +66,7 @@ async function _runner(projectOwner, projectName, opts) {
     projectOwner,
   });
 
-  step++;
+  step++; // 1
   if (!project.data) {
     await timeIt(`[${step}|${TOTAL_STEPS}] Fetching project data`, async () => {
       const data = await fetchProjectData({
@@ -77,7 +79,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
+  step++; // 2
   if (!project.pullsCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull requests", async () => {
@@ -113,7 +115,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
+  step++; // 3
   if (!project.issuesCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting issues", async () => {
@@ -148,7 +150,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
+  step++; // 4
   if (!project.individualPrCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting individual pull requests", async () => {
@@ -226,7 +228,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
+  step++; // 5
   if (!project.commentsIssueCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting all issues comments", async () => {
@@ -268,7 +270,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
+  step++; // 6
   if (!project.isFollowsCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(
@@ -332,7 +334,7 @@ async function _runner(projectOwner, projectName, opts) {
     );
   }
 
-  step++;
+  step++; // 7
   if (!project.filesCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull requests files", async () => {
@@ -376,7 +378,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
+  step++; // 8
   if (!project.requestersCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull request requesters", async () => {
@@ -419,7 +421,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
+  step++; // 9
   {
     function countBy(xs, pred) {
       return xs.reduce((acc, x) => (pred(x) ? acc + 1 : acc), 0);
@@ -484,6 +486,11 @@ async function runnerWithRetry({
   tries = 0,
   nextTime = DEFAULT_RESTART_DELAY,
 }) {
+  // Configure a rotate api key
+  const keysCount = config.GITHUB_APIKEYS.length;
+  const githubApi = config.GITHUB_APIKEYS[tries % keysCount];
+  api.defaults.headers.Authorization = `Bearer ${githubApi}`;
+
   let apiLimitReached = false;
 
   try {
@@ -511,21 +518,19 @@ async function runnerWithRetry({
   }
 
   // retry
-  if (tries < 3) {
-    if (apiLimitReached) {
-      logger.info("API limit reached");
-      logger.info("Waiting 1 min to try again...");
-      await sleep(nextTime);
-      await runnerWithRetry({
-        identifier,
-        projectName,
-        projectOwner,
-        spinner,
-        timeIt,
-        tries: 0,
-        nextTime,
-      });
-    }
+  if (apiLimitReached) {
+    logger.info("API limit reached");
+    logger.info("Waiting 1 min to try again...");
+    await sleep(nextTime);
+    await runnerWithRetry({
+      identifier,
+      projectName,
+      projectOwner,
+      spinner,
+      timeIt,
+      tries: tries + 1,
+      nextTime,
+    });
   }
 }
 
