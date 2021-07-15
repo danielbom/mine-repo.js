@@ -3,6 +3,7 @@ const safeLength = require("./safeLength");
 const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchPullRequestFiles({
+  prefix,
   opts,
   getPullRequests,
   fetchFiles,
@@ -13,7 +14,7 @@ async function fetchPullRequestFiles({
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  opts.logger.info("Pull requests count: " + count);
+  opts.logger.info(prefix + " Pull requests count: " + count);
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     let page = 1;
@@ -21,7 +22,7 @@ async function fetchPullRequestFiles({
 
     while (true) {
       let length = 0;
-      const label = `Fetching pull request files page(${page}) [${i}|${count}] ${percentage}%`;
+      const label = `${prefix} Fetching pull request files page(${page}) [${i}|${count}] ${percentage}%`;
       await timeIt(label, async () => {
         const response = await fetchFiles(pr, page);
         page++;

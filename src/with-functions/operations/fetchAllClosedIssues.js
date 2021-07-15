@@ -3,6 +3,7 @@ const safeLength = require("./safeLength");
 const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchAllClosedIssues({
+  prefix,
   fetchPullRequests,
   initialPage,
   storeIssues,
@@ -15,7 +16,7 @@ async function fetchAllClosedIssues({
   while (true) {
     let length = 0;
 
-    await timeIt(`Fetching issue: page(${page}) [${i}]`, async () => {
+    await timeIt(`${prefix} Fetching issue page(${page})`, async () => {
       const response = await fetchPullRequests(page);
 
       const data = response.data || [];

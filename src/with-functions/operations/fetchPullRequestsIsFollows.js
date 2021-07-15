@@ -1,4 +1,5 @@
 async function fetchPullRequestsIsFollows({
+  prefix,
   opts,
   getPullRequests,
   mapPullRequestToData,
@@ -12,13 +13,13 @@ async function fetchPullRequestsIsFollows({
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  opts.logger.info("Pull requests count: " + count);
+  opts.logger.info(prefix + " Pull requests count: " + count);
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     const data = mapPullRequestToData(pr);
     const percentage = ((i / count) * 100).toFixed(0);
 
-    const label = `Requester follows merger [${i}|${count}] ${percentage}%`;
+    const label = `${prefix} Requester follows merger [${i}|${count}] ${percentage}%`;
     await timeIt(label, async () => {
       const mustFetch = await checkMustFetch(data);
 

@@ -3,6 +3,7 @@ const safeLength = require("./safeLength");
 const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchIssuesComments({
+  prefix,
   opts,
   getIssues,
   fetchIssueComments,
@@ -13,7 +14,7 @@ async function fetchIssuesComments({
   const issues = await getIssues();
   const count = issues.length;
 
-  opts.logger.info("Issues count: " + count);
+  opts.logger.info(prefix + " Issues count: " + count);
   for (let i = 0; i < count; i++) {
     const isu = issues[i];
     let page = 1;
@@ -22,7 +23,7 @@ async function fetchIssuesComments({
     while (true) {
       let length = 0;
 
-      const label = `Fetching issue comment: page(${page}) [${i}|${count}] ${percentage}%`;
+      const label = `${prefix} Fetching issue comment page(${page}) [${i}|${count}] ${percentage}%`;
       await timeIt(label, async () => {
         const response = await fetchIssueComments(isu, page);
         page++;

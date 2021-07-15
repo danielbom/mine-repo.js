@@ -1,4 +1,5 @@
 async function fetchIndividualRequesters({
+  prefix,
   opts,
   getPullRequests,
   mapPullRequestToData,
@@ -11,13 +12,13 @@ async function fetchIndividualRequesters({
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  opts.logger.info("Requesters count: " + count);
+  opts.logger.info(prefix + " Requesters count: " + count);
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     const data = mapPullRequestToData(pr);
     const percentage = ((i / count) * 100).toFixed(0);
 
-    const label = `Fetching individual requester [${i}|${count}] ${percentage}%`;
+    const label = `${prefix} Fetching individual requester [${i}|${count}] ${percentage}%`;
     await timeIt(label, async () => {
       const mustFetch = await checkMustFetch(data);
 

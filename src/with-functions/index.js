@@ -51,7 +51,10 @@ async function raceFetchGet(url) {
 
 async function _runner(projectOwner, projectName, opts) {
   const { timeIt } = opts;
+  const TOTAL_STEPS = 8;
+  let step = 0;
 
+  opts.spinner.start();
   await db.connect();
 
   const project = await loadProject({
@@ -61,26 +64,30 @@ async function _runner(projectOwner, projectName, opts) {
     projectOwner,
   });
 
+  step++;
   if (!project.data) {
-    await timeIt("Fetching project data", async () => {
+    await timeIt(`[${step}|${TOTAL_STEPS}] Fetching project data`, async () => {
       const data = await fetchProjectData({
-        fetchProject: (data) => raceFetchGet(getProjectUrl(data)),
         projectName,
         projectOwner,
+        fetchProject: (data) => raceFetchGet(getProjectUrl(data)),
       });
       project.data = data;
       await project.save();
     });
   }
 
+  step++;
   if (!project.pullsCollected) {
-    await timeIt("Collecting pull requests", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Collecting pull requests", async () => {
       const total = await db.models.pullRequest
         .find({ project: project._id })
         .countDocuments();
       const initialPage = getInitialPullRequestPage(total);
 
       await fetchAllClosedPullRequests({
+        prefix,
         opts,
         async storePullRequest(data) {
           const exists = await db.models.pullRequest.findOne({
@@ -106,14 +113,17 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  step++;
   if (!project.issuesCollected) {
-    await timeIt("Collecting issues", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Collecting issues", async () => {
       const total = await db.models.issue
         .find({ project: project._id })
         .countDocuments();
       const initialPage = getInitialIssuesPage(total);
 
       await fetchAllClosedIssues({
+        prefix,
         opts,
         async storeIssues(data) {
           const issueExists = await db.models.issue.findOne({
@@ -138,9 +148,12 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  step++;
   if (!project.individualPrCollected) {
-    await timeIt("Collecting individual pull requests", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Collecting individual pull requests", async () => {
       await fetchIndividualPullRequests({
+        prefix,
         opts,
         getPullRequests() {
           return db.models.pullRequest.find({
@@ -162,9 +175,12 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  step++;
   if (!project.commentsPrCollected) {
-    await timeIt("Collecting pull requests comments", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Collecting pull requests comments", async () => {
       await fetchPullRequestsComments({
+        prefix,
         opts,
         getPullRequests() {
           return db.models.pullRequest.find({
@@ -199,9 +215,12 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  step++;
   if (!project.commentsIssueCollected) {
-    await timeIt("Collecting all issues comments", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Collecting all issues comments", async () => {
       await fetchIssuesComments({
+        prefix,
         opts,
         getIssues() {
           return db.models.issue.find({
@@ -236,65 +255,74 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  step++;
   if (!project.isFollowsCollected) {
-    await timeIt("Collecting if requester follows merger", async () => {
-      await fetchPullRequestsIsFollows({
-        opts,
-        getPullRequests() {
-          return db.models.pullRequest.find({
-            project: project._id,
-            isFollowsCollected: false,
-            "selfData.merged_by": { $ne: null },
-          });
-        },
-        async checkMustFetch({ mergerLogin, requesterLogin }) {
-          const exists = await db.models.followCheck.findOne({
-            project: project._id,
-            mergerLogin,
-            requesterLogin,
-          });
-          return !exists;
-        },
-        mapPullRequestToData: (pr) => ({
-          requesterLogin: pr.data.user.login,
-          mergerLogin: pr.selfData.merged_by.login,
-        }),
-        requesterIsSameAsMerger: (data) =>
-          data.requesterLogin === data.mergerLogin,
-        async fetchRequesterIsFollows(data) {
-          const url = getRequesterFollowsMergerUrl(data);
-          const request = await raceFetchGet(url);
-          return request.status === 204;
-        },
-        async onFetchIsFollowsComplete(pr) {
-          const pullRequest = await db.models.pullRequest.findById(pr._id);
-          pullRequest.isFollowsCollected = true;
-          await pullRequest.save();
-        },
-        async storePullRequestIsFollows(
-          pr,
-          { mergerLogin, requesterLogin },
-          { following, sameAsMerger }
-        ) {
-          await db.models.followCheck.create({
-            project: project._id,
-            pullRequest: pr._id,
-            requesterLogin,
-            mergerLogin,
-            following,
-            sameAsMerger,
-          });
-        },
-      });
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(
+      prefix + " Collecting if requester follows merger",
+      async () => {
+        await fetchPullRequestsIsFollows({
+          prefix,
+          opts,
+          getPullRequests() {
+            return db.models.pullRequest.find({
+              project: project._id,
+              isFollowsCollected: false,
+              "selfData.merged_by": { $ne: null },
+            });
+          },
+          async checkMustFetch({ mergerLogin, requesterLogin }) {
+            const exists = await db.models.followCheck.findOne({
+              project: project._id,
+              mergerLogin,
+              requesterLogin,
+            });
+            return !exists;
+          },
+          mapPullRequestToData: (pr) => ({
+            requesterLogin: pr.data.user.login,
+            mergerLogin: pr.selfData.merged_by.login,
+          }),
+          requesterIsSameAsMerger: (data) =>
+            data.requesterLogin === data.mergerLogin,
+          async fetchRequesterIsFollows(data) {
+            const url = getRequesterFollowsMergerUrl(data);
+            const request = await raceFetchGet(url);
+            return request.status === 204;
+          },
+          async onFetchIsFollowsComplete(pr) {
+            const pullRequest = await db.models.pullRequest.findById(pr._id);
+            pullRequest.isFollowsCollected = true;
+            await pullRequest.save();
+          },
+          async storePullRequestIsFollows(
+            pr,
+            { mergerLogin, requesterLogin },
+            { following, sameAsMerger }
+          ) {
+            await db.models.followCheck.create({
+              project: project._id,
+              pullRequest: pr._id,
+              requesterLogin,
+              mergerLogin,
+              following,
+              sameAsMerger,
+            });
+          },
+        });
 
-      project.isFollowsCollected = true;
-      await project.save();
-    });
+        project.isFollowsCollected = true;
+        await project.save();
+      }
+    );
   }
 
+  step++;
   if (!project.filesCollected) {
-    await timeIt("Collecting pull requests files", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Collecting pull requests files", async () => {
       await fetchPullRequestFiles({
+        prefix,
         opts,
         getPullRequests() {
           return db.models.pullRequest
@@ -333,9 +361,12 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  step++;
   if (!project.requestersCollected) {
-    await timeIt("Collecting pull request requesters", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Collecting pull request requesters", async () => {
       await fetchIndividualRequesters({
+        prefix,
         opts,
         getPullRequests() {
           return db.models.pullRequest.find({
@@ -371,6 +402,7 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
+  step++;
   {
     function countBy(xs, pred) {
       return xs.reduce((acc, x) => (pred(x) ? acc + 1 : acc), 0);
@@ -384,7 +416,8 @@ async function _runner(projectOwner, projectName, opts) {
       );
     }
 
-    await timeIt("Measure pull request last iterations", async () => {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    await timeIt(prefix + " Measure pull request last iterations", async () => {
       await measurePullRequestLastIterations({
         getPullRequests: () =>
           db.models.pullRequest.find({ project: project._id }).lean(),
@@ -505,7 +538,7 @@ async function runner(projectOwner, projectName) {
     text: msg,
     color: "blue",
     hideCursor: false,
-  }).start();
+  });
 
   await timeIt(`Run of project ${identifier}`, async () => {
     await runnerWithRetry({
