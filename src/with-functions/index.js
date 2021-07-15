@@ -446,6 +446,9 @@ async function runner(
   }).start();
 
   try {
+    // Test of API connection
+    await api.get(getProjectUrl({ projectName, projectOwner }));
+
     console.time("Total time");
     await _runner(projectOwner, projectName, {
       logger,
