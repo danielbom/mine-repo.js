@@ -425,49 +425,26 @@ async function _runner(projectOwner, projectName, opts) {
 
 const DEFAULT_RESTART_DELAY = 60_000;
 
-async function runner(
-  projectOwner,
+async function runnerWithRetry({
+  identifier,
   projectName,
+  projectOwner,
+  spinner,
+  timeIt,
   tries = 0,
-  nextTime = DEFAULT_RESTART_DELAY
-) {
-  // Reference code of spinner
-  // https://www.freecodecamp.org/news/schedule-a-job-in-node-with-nodecron/
-
+  nextTime = DEFAULT_RESTART_DELAY,
+}) {
   let apiLimitReached = false;
-
-  const identifier = `${projectOwner}/${projectName}`;
-  const msg = `Starting mining the project ${identifier}`;
-  logger.info(msg);
-  const spinner = ora({
-    text: msg,
-    color: "blue",
-    hideCursor: false,
-  }).start();
 
   try {
     // Test of API connection
     await api.get(getProjectUrl({ projectName, projectOwner }));
 
-    console.time("Total time");
     await _runner(projectOwner, projectName, {
       logger,
       identifier,
       spinner,
-      async timeIt(label, func) {
-        spinner.text = label;
-        logger.info(label);
-
-        const date = Date.now();
-        await func();
-
-        const ms = Date.now() - date;
-        if (ms > 10000) {
-          logger.info(`${label}: ${parseMillisecondsIntoReadableTime(ms)}`);
-        } else {
-          logger.info(`${label}: ${ms}ms`);
-        }
-      },
+      timeIt,
     });
   } catch (err) {
     spinner.fail(`Error on mining the project ${identifier}`);
@@ -481,8 +458,6 @@ async function runner(
     if (err.isAxiosError) {
       apiLimitReached = err.response.status === 403;
     }
-  } finally {
-    console.timeEnd("Total time");
   }
 
   // retry
@@ -491,9 +466,56 @@ async function runner(
       logger.info("API limit reached");
       logger.info("Waiting 1 min to try again...");
       await sleep(nextTime);
-      await runner(projectOwner, projectName, 0, nextTime);
+      await runnerWithRetry({
+        identifier,
+        projectName,
+        projectOwner,
+        spinner,
+        timeIt,
+        tries: 0,
+        nextTime,
+      });
     }
   }
+}
+
+async function runner(projectOwner, projectName) {
+  async function timeIt(label, func) {
+    spinner.text = label;
+    logger.info(label);
+
+    const date = Date.now();
+    await func();
+
+    const ms = Date.now() - date;
+    if (ms > 10000) {
+      logger.info(`${label}: ${parseMillisecondsIntoReadableTime(ms)}`);
+    } else {
+      logger.info(`${label}: ${ms}ms`);
+    }
+  }
+
+  // Reference code of spinner
+  // https://www.freecodecamp.org/news/schedule-a-job-in-node-with-nodecron/
+
+  const identifier = `${projectOwner}/${projectName}`;
+  const msg = `Starting mining the project ${identifier}`;
+  logger.info(msg);
+  const spinner = ora({
+    text: msg,
+    color: "blue",
+    hideCursor: false,
+  }).start();
+
+  await timeIt(`Run of project ${identifier}`, async () => {
+    await runnerWithRetry({
+      spinner,
+      identifier,
+      projectName,
+      projectOwner,
+      timeIt,
+    });
+  });
 }
 
 module.exports = runner;
