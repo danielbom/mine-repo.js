@@ -37,6 +37,7 @@ const PullRequestSchema = new mongoose.Schema(
     prsCommentsCount: Number,
     issuesCount: Number,
     issueCommentsCount: Number,
+    lastIterations: Number,
     filesCollected: DefaultFalse,
     commentsCollected: DefaultFalse,
     individualPrCollected: DefaultFalse,

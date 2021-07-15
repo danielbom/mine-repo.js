@@ -439,12 +439,21 @@ async function _runner(projectOwner, projectName, opts) {
     await timeIt(prefix + " Measure pull request last iterations", async () => {
       await measurePullRequestLastIterations({
         getPullRequests: () =>
-          db.models.pullRequest.find({ project: project._id }).lean(),
+          db.models.pullRequest
+            .find({ project: project._id, "data.user": { $ne: null } })
+            .lean(),
         getPullRequestComments: () =>
-          db.models.pullRequestComment.find({ project: project._id }).lean(),
-        getIssues: () => db.models.issue.find({ project: project._id }).lean(),
+          db.models.pullRequestComment
+            .find({ project: project._id, "data.user": { $ne: null } })
+            .lean(),
+        getIssues: () =>
+          db.models.issue
+            .find({ project: project._id, "data.user": { $ne: null } })
+            .lean(),
         getIssuesComments: () =>
-          db.models.issueComment.find({ project: project._id }).lean(),
+          db.models.issueComment
+            .find({ project: project._id, "data.user": { $ne: null } })
+            .lean(),
 
         async calcPullRequestsIterations(elements, pr) {
           return {
@@ -460,6 +469,9 @@ async function _runner(projectOwner, projectName, opts) {
           pullRequest.prsCommentsCount = counts.prsComments;
           pullRequest.issuesCount = counts.issues;
           pullRequest.issueCommentsCount = counts.issueComments;
+
+          // Pull requests are ignored because they are collected with issues
+          pullRequest.lastIterations = counts.issues + counts.issueComments;
           await pullRequest.save();
         },
       });
