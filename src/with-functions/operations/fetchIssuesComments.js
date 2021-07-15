@@ -1,5 +1,6 @@
 const Promise = require("bluebird");
 const safeLength = require("./safeLength");
+const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchIssuesComments({
   opts,
@@ -32,7 +33,7 @@ async function fetchIssuesComments({
         await Promise.map(data, (item) => storeIssueComment(isu, item));
       });
 
-      if (length === 0) break;
+      if (length !== ITEMS_PER_PAGE) break;
     }
 
     await onFetchCommentsComplete(isu);

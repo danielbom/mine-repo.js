@@ -1,5 +1,6 @@
 const Promise = require("bluebird");
 const safeLength = require("./safeLength");
+const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchPullRequestFiles({
   opts,
@@ -31,7 +32,7 @@ async function fetchPullRequestFiles({
         await Promise.map(data, (item) => storePullRequestFile(pr, item));
       });
 
-      if (length === 0) break;
+      if (length !== ITEMS_PER_PAGE) break;
     }
 
     await onFetchFilesComplete(pr);
