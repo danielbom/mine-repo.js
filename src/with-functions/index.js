@@ -51,7 +51,7 @@ async function raceFetchGet(url) {
 
 async function _runner(projectOwner, projectName, opts) {
   const { timeIt } = opts;
-  const TOTAL_STEPS = 8;
+  const TOTAL_STEPS = 7;
   let step = 0;
 
   opts.spinner.start();
@@ -156,10 +156,12 @@ async function _runner(projectOwner, projectName, opts) {
         prefix,
         opts,
         getPullRequests() {
-          return db.models.pullRequest.find({
-            project: project._id,
-            individualPrCollected: false,
-          });
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              individualPrCollected: false,
+            })
+            .lean();
         },
         fetchIndividualPullRequest: (pr) => raceFetchGet(pr.data.url),
         async storeIndividualPullRequest(pr, data) {
@@ -175,18 +177,27 @@ async function _runner(projectOwner, projectName, opts) {
     });
   }
 
-  step++;
-  if (!project.commentsPrCollected) {
+  // Step removed because prs are interpreted as issues
+  // Then, I only fetch comments of issues.
+  //
+  // References:
+  // - https://github.com/paularmstrong/normalizr
+  // - https://stackoverflow.com/questions/33374778/how-can-i-get-the-number-of-github-issues-using-the-github-api
+  //
+  // step++;
+  if (false && !project.commentsPrCollected) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull requests comments", async () => {
       await fetchPullRequestsComments({
         prefix,
         opts,
         getPullRequests() {
-          return db.models.pullRequest.find({
-            project: project._id,
-            commentsCollected: false,
-          });
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              commentsCollected: false,
+            })
+            .lean();
         },
         fetchPullRequestComments: (pr, page) =>
           raceFetchGet(`${pr.data.url}/comments?page=${page}`),
@@ -223,10 +234,12 @@ async function _runner(projectOwner, projectName, opts) {
         prefix,
         opts,
         getIssues() {
-          return db.models.issue.find({
-            project: project._id,
-            commentsCollected: false,
-          });
+          return db.models.issue
+            .find({
+              project: project._id,
+              commentsCollected: false,
+            })
+            .lean();
         },
         async onFetchCommentsComplete(isu) {
           const issue = await db.models.issue.findById(isu._id);
@@ -265,11 +278,13 @@ async function _runner(projectOwner, projectName, opts) {
           prefix,
           opts,
           getPullRequests() {
-            return db.models.pullRequest.find({
-              project: project._id,
-              isFollowsCollected: false,
-              "selfData.merged_by": { $ne: null },
-            });
+            return db.models.pullRequest
+              .find({
+                project: project._id,
+                isFollowsCollected: false,
+                "selfData.merged_by": { $ne: null },
+              })
+              .lean();
           },
           async checkMustFetch({ mergerLogin, requesterLogin }) {
             const exists = await db.models.followCheck.findOne({
@@ -369,10 +384,12 @@ async function _runner(projectOwner, projectName, opts) {
         prefix,
         opts,
         getPullRequests() {
-          return db.models.pullRequest.find({
-            project: project._id,
-            requestersCollected: false,
-          });
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              requestersCollected: false,
+            })
+            .lean();
         },
         mapPullRequestToData: (pr) => pr.data.user.login,
         async checkMustFetch(requesterLogin) {
@@ -518,14 +535,14 @@ async function runner(projectOwner, projectName) {
     logger.info(label);
 
     const date = Date.now();
-    await func();
-
-    const ms = Date.now() - date;
-    if (ms > 10000) {
-      logger.info(`${label}: ${parseMillisecondsIntoReadableTime(ms)}`);
-    } else {
-      logger.info(`${label}: ${ms}ms`);
-    }
+    await func().finally(() => {
+      const ms = Date.now() - date;
+      if (ms > 10000) {
+        logger.info(`${label}: ${parseMillisecondsIntoReadableTime(ms)}`);
+      } else {
+        logger.info(`${label}: ${ms}ms`);
+      }
+    });
   }
 
   // Reference code of spinner
