@@ -1,6 +1,7 @@
 // const runner = require("./with-class");
 const runner = require("./with-functions");
 const db = require("./database");
+const diffTime = require("./diffTime");
 
 const args = process.argv.slice(2);
 
@@ -28,6 +29,10 @@ switch (cmd) {
     db.connect()
       .then(() => db.clear())
       .then(() => db.disconnect());
+    break;
+  }
+  case "diff-time": {
+    console.log(diffTime(args[0], args[1]));
     break;
   }
   default: {

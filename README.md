@@ -22,6 +22,10 @@ yarn # Para instalar as dependencias
 # yarn mine project [projectOwner] [projectName]
 yarn mine JabRef jabref
 
+# Calculate the time between 2 dates
+# Usefull to measure the time execution between intervals
+yarn mine time [date1] [date2] # dates are in ISO format
+
 # Clear all database data
 # yarn mine clear
 yarn mine clear
