@@ -473,7 +473,7 @@ async function runner(
     spinner.fail(`Error on mining the project ${identifier}`);
     spinner.clear();
 
-    logger.error(err.message);
+    logger.info(err.message);
     logger.error(err.stack);
 
     await db.disconnect();
