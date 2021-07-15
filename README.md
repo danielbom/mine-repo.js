@@ -18,8 +18,13 @@ Depois que você configurou seu .env, para executar digite:
 ```bash
 yarn # Para instalar as dependencias
 
-# yarn mine [projectOwner] [projectName]
+# Execute the miner into one project
+# yarn mine project [projectOwner] [projectName]
 yarn mine JabRef jabref
+
+# Clear all database data
+# yarn mine clear
+yarn mine clear
 ```
 
 ## TODO
@@ -83,4 +88,4 @@ https://api.github.com/repos/{}/contributors
 
 ## Referencias
 
-* [Informações sobre atualização do uso da chahve de api do github](https://developer.github.com/changes/2020-02-10-deprecating-auth-through-query-param/)
+* [Informações sobre atualização do uso da chave de api do github](https://developer.github.com/changes/2020-02-10-deprecating-auth-through-query-param/)
