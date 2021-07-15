@@ -18,8 +18,8 @@ Depois que você configurou seu .env, para executar digite:
 ```bash
 yarn # Para instalar as dependencias
 
-# yarn mongo [projectOwner] [projectName]
-yarn mongo JabRef jabref
+# yarn mine [projectOwner] [projectName]
+yarn mine JabRef jabref
 ```
 
 ## TODO
@@ -43,7 +43,8 @@ yarn mongo JabRef jabref
     - changed_counts          int           pull request
     - is_merged               bool          pull request
     - pr_comments_count       int           pull request
-    - test_is_included        bool          pull request
+    - has_test                bool          pull request
+    - is_following            bool          pull request
     - followers_count         int           usuário
     - is_collaborator         bool          usuário
     - prior_iterations_count  bool          usuário
