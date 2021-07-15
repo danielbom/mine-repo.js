@@ -173,7 +173,7 @@ async function _runner(projectOwner, projectName, opts) {
           });
         },
         fetchPullRequestComments: (pr, page) =>
-          raceFetchGet(`${pr.data.comments_url}?page=${page}`),
+          raceFetchGet(`${pr.data.url}/comments?page=${page}`),
         async onFetchCommentsComplete(pr) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.commentsCollected = true;
@@ -215,7 +215,7 @@ async function _runner(projectOwner, projectName, opts) {
           await issue.save();
         },
         fetchIssueComments: (isu, page) =>
-          raceFetchGet(`${isu.data.comments_url}?page=${page}`),
+          raceFetchGet(`${isu.data.url}/comments?page=${page}`),
         async storeIssueComment(isu, data) {
           const exists = await db.models.issueComment.findOne({
             "data.id": data.id,
