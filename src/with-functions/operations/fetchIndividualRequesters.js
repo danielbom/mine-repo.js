@@ -1,6 +1,7 @@
 async function fetchIndividualRequesters({
   prefix,
-  opts,
+  logger,
+  timeIt,
   getPullRequests,
   mapPullRequestToData,
   checkMustFetch,
@@ -8,11 +9,10 @@ async function fetchIndividualRequesters({
   storeProjectRequesterData,
   fetchPullRequestRequester,
 }) {
-  const { timeIt } = opts;
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  opts.logger.info(prefix + " Requesters count: " + count);
+  logger.info(prefix + " Requesters count: " + count);
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     const data = mapPullRequestToData(pr);

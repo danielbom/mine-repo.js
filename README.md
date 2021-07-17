@@ -40,83 +40,54 @@ yarn mine clear
   * campos sem valor devem ficar vazios
   * `age` deve ser representado em meses
   * campos na seguinte order:
-    - project_name            string        projeto
-    - language                string        projeto
-    - age                     int           projeto
-    - stars                   int           projeto
-    - contributors_count      int           projeto
-    - submitter_login         string        pull request
-    - merger_login            string        pull request
-    - pull_request_id         int           pull request
-    - files_changed_count     int           pull request
-    - changed_counts          int           pull request
-    - is_merged               bool          pull request
-    - pr_comments_count       int           pull request
-    - has_test                bool          pull request
-    - is_following            bool          pull request
-    - followers_count         int           usuário
-    - is_collaborator         bool          usuário
-    - prior_iterations_count  bool          usuário
+
+| Pos. | Nome                    | Tipo          | Categoria    |
+|:----:|:-----------------------:|:-------------:|:------------:|
+|   1  | project_name            | string        | projeto      |
+|   2  | language                | string        | projeto      |
+|   3  | age                     | int           | projeto      |
+|   4  | stars                   | int           | projeto      |
+|   5  | contributors_count      | int           | projeto      |
+|   6  | submitter_login         | string        | pull request |
+|   7  | merger_login            | string        | pull request |
+|   8  | pull_request_id         | int           | pull request |
+|   9  | files_changed_count     | int           | pull request |
+|  10  | changed_counts          | int           | pull request |
+|  12  | is_merged               | bool          | pull request |
+|  13  | pr_comments_count       | int           | pull request |
+|  14  | has_test                | bool          | pull request |
+|  15  | is_following            | bool          | pull request |
+|  16  | followers_count         | int           | usuário      |
+|  17  | is_collaborator         | bool          | usuário      |
+|  18  | prior_iterations_count  | bool          | usuário      |
 
 ## Etapas da coleta
 
 Existem 9 etapas de coleta, dentre elas:
 
-* Dados básico do repositório: 
-  - 1 requisição
-* Lista de pull request fechados:
-  - X requisições, onde X é aproximadamente N / 30
-  - 00:05:51
-* Dados dos Pull requests fechados:
-  - N requisições
-  - 01:09:23
-* Comentários dos pull requests:
-  - L requisições, onde L é uma porcentagem a mais de N
-  - **OBS:** Estes dados já existem dentro dos comentários das issues
-  - 00:57:52
-* Issues:
-  - 00:05:36
-  - Z requisições, onde Z é igual a N + K requisição
-* Comentários das Issues:
-  - Z requisições
-  - 01:26:28
-  - **OBS:** 5 min. idle por causa do limite de requisições da API.
-* Solicitante segue gerente:
-  - Y requisições, onde Y é uma porcentagem de N.
-  - 00:05:49
-* Arquivos dos pull requests:
-  - W requisições, onde W é maior ou igual a N.
-  - 01:36:45
-  - **OBS:** 6 min. idle por causa do limite de requisições da API.
-* Dados dos solicitantes:
-  - 00:04:09
-  - Y requisições.
-
-| Etapa | Estimativa de<br>requisições | Tempo de execução<br>(jabref) | Observações |
-|:---:|:---:|:---:|:---:|
-| Dados do repositório | 1 | - |  |
-| Pull requests fechados | X | 00:05:51 | X é aproximadamente N / 3 |
-| Dados dos pull requests | N | 01:09:23 |  |
-| Comentários dos pull requests | L | 00:57:52 | - L é uma aproximadamente N<br>- Serão ignorados futuramente<br>- estes dados já existem dentro dos comentários das issues |
-| Issues | Z | 01:26:28 |  |
-| Comentários das issues | M | 01:26:28 | - M é aproximadamente Z<br>- 5 min. IDLE |
-| Solicitante segue o gerente | Y | 00:05:49 | Y é uma porcentagem de N |
-| Arquivos dos pull requests | W | 01:36:45 | - W é ligeiramente maior ou<br>igual a N.<br>- 6 min. IDLE |
-| Dados do solicitante | Y | 00:04:09 |  |
+|   | Etapa | Estimativa de<br>requisições | Tempo de execução<br>(jabref) | Observações |
+|:-:|:-----------------------------:|:----:|:--------:|:---:|
+| 1 | Dados do repositório          | 1    |     -    |  |
+| 2 | Pull requests fechados        | X    | 00:05:51 | X é aproximadamente PR / 30 |
+| 3 | Dados dos pull requests       | PR   | 01:09:23 |  |
+| 4 | Comentários dos pull requests | -    | 00:57:52 | - Serão ignorados futuramente<br>- Estes dados já existem dentro<br> dos comentários das issues |
+| 5 | Issues                        | ISU  | 01:26:28 |  |
+| 6 | Comentários das issues        | ISUC | 01:26:28 | - ISUC é aproximadamente ISU<br>- 5 min. IDLE |
+| 7 | Solicitante segue o gerente   | Y    | 00:05:49 | Y é uma porcentagem de PR |
+| 8 | Arquivos dos pull requests    | PRF  | 01:36:45 | - PRF é ligeiramente <br> maior ou igual a PR.<br>- 6 min. IDLE |
+| 9 | Dados do solicitante          | Y    | 00:04:09 |  |
 
 Matemáticamente temos:
 
-* 1 + X + N + L + (2 * Z) + (2 * Y) + W
+* 1 + X + PR + ISU + ISUC + (2 * Y) + PRF
 * Onde:
-  * L ~= N
-  * W >= N
-  * X ~= N / 30
-  * Y = N * L, e L >= 1
-  * Z = N + K
-* Aproximando Z, Y, W, L para um valor próximo de N, e aproximando X para um valor próximo de Y temos:
-  * 1 + (5 * N) + (3 * Y) número de requisições.
-* Ignorando L, por causa da sua redundancia, temos:
-  * 1 + (4 * N) + (3 * Y) número de requisições.
+  * X     ~=  PR / 30
+  * ISUC  ~=  ISU
+  * Y      =  PR * L, e L >= 1
+  * PRF   >=  PR
+* Aproximando ISU, ISUC, PRF para um valor próximo de PR, e aproximando X para um valor próximo de Y temos:
+  * 1 + Y + PR + PR + PR + (2 * Y) + PR
+  * 1 + (4 * PR) + (3 * Y) número de requisições.
 
 Tempo de execução para o repositório do jabref:
 - Total:            05:32:27
@@ -125,9 +96,9 @@ Tempo de execução para o repositório do jabref:
 
 Observando as medidas de tempo para a execução sequência das requisições, percebe-se que é possível fazer 1000 requisições a cada 15 min.
 Isto equivale a 66 requisições por min.
-Utilizando a formula acima, após coletar a lista de pull requests, podemos calcular N, e então estimar o tempo de execução com:
+Utilizando a formula acima, após coletar a lista de pull requests, podemos calcular PR, e então estimar o tempo de execução com:
 
-* 1 + (4 * N) + (3 * Y), ignorando 1 requisição contante
+* 1 + (4 * PR) + (3 * Y), ignorando 1 requisição contante
 * (4 * N) + (3 * Y), utilizando Y = 0.1 * N
 * (4 * N) + (3 * 0.1 * N)
 * (4 * N) + (0.3 * N)
@@ -164,9 +135,9 @@ https://api.github.com/repos/{}/contributors
   - [x] É um coladorador?
     - [x] Tem a permissão de fazer commits no projeto.
     - [x] Se existir um PR aceito, ele é um colaborador?
-      - [x]`author_association` = "CONTRIBUTOR"
+      - [x] 'author_association' = "CONTRIBUTOR"
       - Não
-    - [x] `author_association` ("NONE" | **"MEMBER"** | **"COLLABORATOR"** | "CONTRIBUTOR")
+    - [x] 'author_association' ("NONE" | **"MEMBER"** | **"COLLABORATOR"** | "CONTRIBUTOR")
       - [x] Verificar o significado deste atributo.
   - [x] Número de seguidores
   - [x] Contagem das interações do usuário com o repositório antes do pull request

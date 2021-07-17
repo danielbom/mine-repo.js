@@ -1,6 +1,7 @@
 async function fetchPullRequestsIsFollows({
   prefix,
-  opts,
+  timeIt,
+  logger,
   getPullRequests,
   mapPullRequestToData,
   checkMustFetch,
@@ -9,11 +10,10 @@ async function fetchPullRequestsIsFollows({
   onFetchIsFollowsComplete,
   storePullRequestIsFollows,
 }) {
-  const { timeIt } = opts;
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  opts.logger.info(prefix + " Pull requests count: " + count);
+  logger.info(prefix + " Pull requests count: " + count);
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     const data = mapPullRequestToData(pr);

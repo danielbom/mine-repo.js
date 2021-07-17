@@ -4,17 +4,17 @@ const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchPullRequestFiles({
   prefix,
-  opts,
+  logger,
+  timeIt,
   getPullRequests,
   fetchFiles,
   onFetchFilesComplete,
   storePullRequestFile,
 }) {
-  const { timeIt } = opts;
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  opts.logger.info(prefix + " Pull requests count: " + count);
+  logger.info(prefix + " Pull requests count: " + count);
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     let page = 1;

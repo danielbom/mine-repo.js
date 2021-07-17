@@ -1,15 +1,15 @@
 async function fetchIndividualPullRequests({
   prefix,
-  opts,
+  timeIt,
+  logger,
   getPullRequests,
   fetchIndividualPullRequest,
   storeIndividualPullRequest,
 }) {
-  const { timeIt } = opts;
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  opts.logger.info(prefix + " Pull requests count: " + count);
+  logger.info(prefix + " Pull requests count: " + count);
   for (let i = 0; i < count; i++) {
     const pr = pullRequests[i];
     const percentage = ((i / count) * 100).toFixed(0);

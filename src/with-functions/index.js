@@ -42,7 +42,7 @@ async function catchSafeErrors(err) {
   throw err;
 }
 
-async function raceFetchGet(url) {
+async function fetch(url) {
   logger.info(url);
   const [data] = await Promise.all([
     api.get(url).catch(catchSafeErrors),
@@ -51,12 +51,18 @@ async function raceFetchGet(url) {
   return data;
 }
 
-async function _runner(projectOwner, projectName, opts) {
-  const { timeIt } = opts;
+async function _runner({
+  projectOwner,
+  projectName,
+  logger,
+  identifier,
+  spinner,
+  timeIt,
+}) {
   const TOTAL_STEPS = 9;
   let step = 0;
 
-  opts.spinner.start();
+  spinner.start();
   await db.connect();
 
   const project = await loadProject({
@@ -72,7 +78,7 @@ async function _runner(projectOwner, projectName, opts) {
       const data = await fetchProjectData({
         projectName,
         projectOwner,
-        fetchProject: (data) => raceFetchGet(getProjectUrl(data)),
+        fetchProject: (data) => fetch(getProjectUrl(data)),
       });
       project.data = data;
       await project.save();
@@ -90,7 +96,7 @@ async function _runner(projectOwner, projectName, opts) {
 
       await fetchAllClosedPullRequests({
         prefix,
-        opts,
+        timeIt,
         async storePullRequest(data) {
           const exists = await db.models.pullRequest.findOne({
             project: project._id,
@@ -104,9 +110,7 @@ async function _runner(projectOwner, projectName, opts) {
           }
         },
         fetchPullRequests: async (page) =>
-          raceFetchGet(
-            getClosedPullRequestsUrl({ projectName, projectOwner, page })
-          ),
+          fetch(getClosedPullRequestsUrl({ projectName, projectOwner, page })),
         initialPage,
       });
 
@@ -126,7 +130,7 @@ async function _runner(projectOwner, projectName, opts) {
 
       await fetchAllClosedIssues({
         prefix,
-        opts,
+        timeIt,
         async storeIssues(data) {
           const issueExists = await db.models.issue.findOne({
             project: project._id,
@@ -140,8 +144,8 @@ async function _runner(projectOwner, projectName, opts) {
             });
           }
         },
-        fetchPullRequests: (page) =>
-          raceFetchGet(getClosedIssuesUrl({ projectName, projectOwner, page })),
+        fetchIssues: (page) =>
+          fetch(getClosedIssuesUrl({ projectName, projectOwner, page })),
         initialPage,
       });
 
@@ -156,7 +160,8 @@ async function _runner(projectOwner, projectName, opts) {
     await timeIt(prefix + " Collecting individual pull requests", async () => {
       await fetchIndividualPullRequests({
         prefix,
-        opts,
+        timeIt,
+        logger,
         getPullRequests() {
           return db.models.pullRequest
             .find({
@@ -165,7 +170,7 @@ async function _runner(projectOwner, projectName, opts) {
             })
             .lean();
         },
-        fetchIndividualPullRequest: (pr) => raceFetchGet(pr.data.url),
+        fetchIndividualPullRequest: (pr) => fetch(pr.data.url),
         async storeIndividualPullRequest(pr, data) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.selfData = data;
@@ -192,7 +197,8 @@ async function _runner(projectOwner, projectName, opts) {
     await timeIt(prefix + " Collecting pull requests comments", async () => {
       await fetchPullRequestsComments({
         prefix,
-        opts,
+        logger,
+        timeIt,
         getPullRequests() {
           return db.models.pullRequest
             .find({
@@ -202,7 +208,7 @@ async function _runner(projectOwner, projectName, opts) {
             .lean();
         },
         fetchPullRequestComments: (pr, page) =>
-          raceFetchGet(`${pr.data.url}/comments?page=${page}`),
+          fetch(`${pr.data.url}/comments?page=${page}`),
         async onFetchCommentsComplete(pr) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.commentsCollected = true;
@@ -234,7 +240,8 @@ async function _runner(projectOwner, projectName, opts) {
     await timeIt(prefix + " Collecting all issues comments", async () => {
       await fetchIssuesComments({
         prefix,
-        opts,
+        logger,
+        timeIt,
         getIssues() {
           return db.models.issue
             .find({
@@ -249,7 +256,7 @@ async function _runner(projectOwner, projectName, opts) {
           await issue.save();
         },
         fetchIssueComments: (isu, page) =>
-          raceFetchGet(`${isu.data.url}/comments?page=${page}`),
+          fetch(`${isu.data.url}/comments?page=${page}`),
         async storeIssueComment(isu, data) {
           const exists = await db.models.issueComment.findOne({
             "data.id": data.id,
@@ -278,7 +285,8 @@ async function _runner(projectOwner, projectName, opts) {
       async () => {
         await fetchPullRequestsIsFollows({
           prefix,
-          opts,
+          logger,
+          timeIt,
           getPullRequests() {
             return db.models.pullRequest
               .find({
@@ -304,7 +312,7 @@ async function _runner(projectOwner, projectName, opts) {
             data.requesterLogin === data.mergerLogin,
           async fetchRequesterIsFollows(data) {
             const url = getRequesterFollowsMergerUrl(data);
-            const request = await raceFetchGet(url);
+            const request = await fetch(url);
             return request.status === 204;
           },
           async onFetchIsFollowsComplete(pr) {
@@ -340,7 +348,8 @@ async function _runner(projectOwner, projectName, opts) {
     await timeIt(prefix + " Collecting pull requests files", async () => {
       await fetchPullRequestFiles({
         prefix,
-        opts,
+        logger,
+        timeIt,
         getPullRequests() {
           return db.models.pullRequest
             .find({
@@ -349,8 +358,7 @@ async function _runner(projectOwner, projectName, opts) {
             })
             .lean();
         },
-        fetchFiles: (pr, page) =>
-          raceFetchGet(`${pr.data.url}/files?page=${page}`),
+        fetchFiles: (pr, page) => fetch(`${pr.data.url}/files?page=${page}`),
         async onFetchFilesComplete(pr) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.filesCollected = true;
@@ -384,7 +392,8 @@ async function _runner(projectOwner, projectName, opts) {
     await timeIt(prefix + " Collecting pull request requesters", async () => {
       await fetchIndividualRequesters({
         prefix,
-        opts,
+        logger,
+        timeIt,
         getPullRequests() {
           return db.models.pullRequest
             .find({
@@ -406,7 +415,7 @@ async function _runner(projectOwner, projectName, opts) {
           await pullRequest.save();
         },
         fetchPullRequestRequester: (requesterLogin) =>
-          raceFetchGet(getUserInformationUrl(requesterLogin)),
+          fetch(getUserInformationUrl(requesterLogin)),
         async storeProjectRequesterData(requesterLogin, data) {
           await db.models.pullRequestRequester.create({
             project: project._id,
@@ -479,9 +488,9 @@ async function _runner(projectOwner, projectName, opts) {
   }
 
   {
-    const msg = `Project ${opts.identifier} collected successfully`;
+    const msg = `Project ${identifier} collected successfully`;
     logger.info(msg);
-    opts.spinner.succeed(msg);
+    spinner.succeed(msg);
   }
 
   await db.disconnect();
@@ -509,7 +518,9 @@ async function runnerWithRetry({
     // Test of API connection
     await api.get(getProjectUrl({ projectName, projectOwner }));
 
-    await _runner(projectOwner, projectName, {
+    await _runner({
+      projectOwner,
+      projectName,
       logger,
       identifier,
       spinner,

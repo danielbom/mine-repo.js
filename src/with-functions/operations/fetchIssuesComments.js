@@ -4,17 +4,17 @@ const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchIssuesComments({
   prefix,
-  opts,
+  timeIt,
+  logger,
   getIssues,
   fetchIssueComments,
   onFetchCommentsComplete,
   storeIssueComment,
 }) {
-  const { timeIt } = opts;
   const issues = await getIssues();
   const count = issues.length;
 
-  opts.logger.info(prefix + " Issues count: " + count);
+  logger.info(prefix + " Issues count: " + count);
   for (let i = 0; i < count; i++) {
     const isu = issues[i];
     let page = 1;
