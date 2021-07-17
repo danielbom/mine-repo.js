@@ -1,0 +1,67 @@
+[
+  {
+    "$match": {
+      "selfData": {
+        "$exists": true
+      }
+    }
+  },
+  {
+    "$lookup": {
+      "from": "followchecks",
+      "localField": "data.user.login",
+      "foreignField": "requesterLogin",
+      "as": "followCheck"
+    }
+  },
+  {
+    "$unwind": {
+      "path": "$followCheck"
+    }
+  },
+  {
+    "$project": {
+      "project": 1,
+      "additions": "$selfData.additions",
+      "deletions": "$selfData.deletions",
+      "filesChanged": "$selfData.changed_files",
+      "requesterLogin": "$selfData.user.login",
+      "mergerLogin": "$selfData.merged_by.login",
+      "authorAssociation": "$data.author_association",
+      "isCollaborator": {
+        "$or": [
+          {
+            "$eq": [
+              "$data.author_association",
+              "MEMBER"
+            ]
+          },
+          {
+            "$eq": [
+              "$data.author_association",
+              "COLLABORATOR"
+            ]
+          }
+        ]
+      },
+      "sameAsMerger": "$followCheck.sameAsMerger",
+      "requesterFollowsMerger": "$followCheck.following",
+      "wasAccepted": {
+        "$ne": [
+          "$selfData.merged_by",
+          null
+        ]
+      },
+      "createdAt": "$data.created_at",
+      "updatedAt": "$data.updated_at",
+      "mergedAt": "$data.merged_at",
+      "closedAt": "$data.closed_at",
+      "lastIterationsCount": {
+        "$sum": [
+          "$issuesCount",
+          "$issueCommentsCount"
+        ]
+      }
+    }
+  }
+]
