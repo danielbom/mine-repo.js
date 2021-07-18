@@ -2,3 +2,5 @@
 /node_modules
 /tmp
 /logs
+/outputs/*
+!/outputs/.gitkeep

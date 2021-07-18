@@ -1,3 +1,5 @@
+const fs = require("fs");
+const path = require("path");
 const ora = require("ora");
 
 const db = require("../database");
@@ -27,8 +29,13 @@ const getUserInformationUrl = require("./operations/getUserInformationUrl");
 const getClosedPullRequestsUrl = require("./operations/getClosedPullRequestsUrl");
 const getRequesterFollowsMergerUrl = require("./operations/getRequesterFollowsMergerUrl");
 
+const generateCsv = require("./operations/generateCsv");
+
 const logger = require("./logger");
 const parseMillisecondsIntoReadableTime = require("./parseMillisecondsIntoReadableTime");
+const countBy = require("./countBy");
+const groupBy = require("./groupBy");
+const monthsUntilToday = require("./monthsUntilToday");
 
 const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
 
@@ -59,7 +66,7 @@ async function _runner({
   spinner,
   timeIt,
 }) {
-  const TOTAL_STEPS = 9;
+  const TOTAL_STEPS = 10;
   let step = 0;
 
   spinner.start();
@@ -432,9 +439,6 @@ async function _runner({
 
   step++; // 9
   {
-    function countBy(xs, pred) {
-      return xs.reduce((acc, x) => (pred(x) ? acc + 1 : acc), 0);
-    }
     function countLastIteration(xs, pr) {
       return countBy(
         xs,
@@ -482,6 +486,98 @@ async function _runner({
           // Pull requests are ignored because they are collected with issues
           pullRequest.lastIterations = counts.issues + counts.issueComments;
           await pullRequest.save();
+        },
+      });
+    });
+  }
+
+  step++; // 10
+  {
+    const prefix = `[${step}|${TOTAL_STEPS}]`;
+    const rootPath = path.join(__dirname, "..", "..");
+    const outputPath = path.join(rootPath, "outputs");
+    const fileName = `${projectName}.csv`;
+
+    if (!fs.existsSync(outputPath)) {
+      fs.mkdirSync(outputPath);
+    }
+
+    await timeIt(prefix + " Generating CSV of " + identifier, async () => {
+      await generateCsv({
+        resultPath: path.join(outputPath, fileName),
+        getProject: () => project.toJSON(),
+        async getPullRequests() {
+          const prs = await db.models.pullRequest
+            .find({ project: project._id })
+            .lean();
+          const followChecks = await db.models.followCheck
+            .find({ project: project._id })
+            .lean();
+          const requesters = await db.models.pullRequestRequester
+            .find({ project: project._id })
+            .lean();
+
+          const files = await db.models.pullRequestFile
+            .aggregate()
+            .match({
+              project: project._id,
+              "data.filename": {
+                $regex: "test",
+                $options: "i",
+              },
+            })
+            .group({ _id: "$pullRequest" });
+
+          const hasTestMap = groupBy(files, (file) => file._id);
+          const followChecksMap = groupBy(followChecks, (fc) => fc.pullRequest);
+          const reqMap = groupBy(requesters, (req) => req.requesterLogin);
+
+          return prs.map((pr) => {
+            const association = pr.selfData.author_association;
+            const requesterLogin = pr.data.user.login;
+            const requester = reqMap[requesterLogin];
+            return {
+              ...pr,
+              hasTest: Boolean(hasTestMap[pr._id]),
+              isFollowing: Boolean(followChecksMap[pr._id]),
+              isCollaborator: ["MEMBER", "COLLABORATOR"].includes(association),
+              requesterFollowers: requester?.data?.followers || 0,
+            };
+          });
+        },
+        transformProject(project, pullRequests) {
+          const contributorsDict = pullRequests.reduce((dict, pr) => {
+            if (pr.selfData.merged_at) {
+              const requesterLogin = pr.data.user.login;
+              dict[requesterLogin] = (dict[requesterLogin] || 0) + 1;
+            }
+            return dict;
+          }, {});
+          const createdAt = new Date(project.data.created_at);
+
+          return {
+            project_name: project.projectName,
+            language: project.data.language,
+            age: monthsUntilToday(createdAt) || 0,
+            stars: project.data.stargazers_count,
+            contributors_count: Object.keys(contributorsDict).length,
+          };
+        },
+        transformPullRequest(pr) {
+          return {
+            submitter_login: pr.data.user.login,
+            merger_login: pr.selfData.merged_by?.login,
+            pull_request_id: pr.selfData.id,
+            files_changed_count: pr.selfData.changed_files,
+            changed_counts: pr.selfData.additions + pr.selfData.deletions,
+            is_merged: typeof pr.selfData.merged_at === "string",
+            pr_comments_count: pr.selfData.comments || 0,
+            has_test: pr.hasTest,
+            prior_iterations_count: pr.lastIterations,
+            is_following: pr.isFollowing,
+            is_collaborator: pr.isCollaborator,
+            followers_count: pr.requesterFollowers,
+          };
         },
       });
     });

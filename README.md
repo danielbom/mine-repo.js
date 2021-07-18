@@ -35,31 +35,6 @@ yarn mine clear
 ## TODO
 
 * Visualizar os repositórios no banco de dados
-* Gerar o CSV: 
-  * campos boleanos são representados com 0 e 1.
-  * campos sem valor devem ficar vazios
-  * `age` é representado em meses
-  * campos na seguinte order:
-
-| Pos. | Nome                    | Tipo          | Categoria    |
-|:----:|:-----------------------:|:-------------:|:------------:|
-|   1  | project_name            | string        | projeto      |
-|   2  | language                | string        | projeto      |
-|   3  | age                     | int           | projeto      |
-|   4  | stars                   | int           | projeto      |
-|   5  | contributors_count      | int           | projeto      |
-|   6  | submitter_login         | string        | pull request |
-|   7  | merger_login            | string        | pull request |
-|   8  | pull_request_id         | int           | pull request |
-|   9  | files_changed_count     | int           | pull request |
-|  10  | changed_counts          | int           | pull request |
-|  12  | is_merged               | bool          | pull request |
-|  13  | pr_comments_count       | int           | pull request |
-|  14  | has_test                | bool          | pull request |
-|  15  | is_following            | bool          | pull request |
-|  16  | followers_count         | int           | usuário      |
-|  17  | is_collaborator         | bool          | usuário      |
-|  18  | prior_iterations_count  | bool          | usuário      |
 
 ## Etapas da coleta
 
@@ -111,6 +86,32 @@ Utilizando o jabref como exemplo, ele possui 4619 pull requests. Aplicando este 
 * 4.3 * 4619 / 66 ~= 301 minutos ~= 5 horas.
 
 https://api.github.com/repos/{}/contributors
+
+## Geração do CSV
+
+* campos boleanos são representados com 0 e 1.
+* campos sem valor devem ficar vazios
+* `age` é representado em meses
+
+| Pos. | Nome                    | Tipo          | Categoria    |
+|:----:|:-----------------------:|:-------------:|:------------:|
+|   1  | project_name            | string        | projeto      |
+|   2  | language                | string        | projeto      |
+|   3  | age                     | int           | projeto      |
+|   4  | stars                   | int           | projeto      |
+|   5  | contributors_count      | int           | projeto      |
+|   6  | submitter_login         | string        | pull request |
+|   7  | merger_login            | string        | pull request |
+|   8  | pull_request_id         | int           | pull request |
+|   9  | files_changed_count     | int           | pull request |
+|  10  | changed_counts          | int           | pull request |
+|  12  | is_merged               | bool          | pull request |
+|  13  | pr_comments_count       | int           | pull request |
+|  14  | has_test                | bool          | pull request |
+|  15  | is_following            | bool          | pull request |
+|  16  | followers_count         | int           | usuário      |
+|  17  | is_collaborator         | bool          | usuário      |
+|  18  | prior_iterations_count  | bool          | usuário      |
 
 ## Dados coletadas.
 
