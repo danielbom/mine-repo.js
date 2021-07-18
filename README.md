@@ -21,7 +21,7 @@ yarn # Para instalar as dependencias
 
 # Execute the miner into one project
 # yarn mine project [projectOwner] [projectName]
-yarn mine JabRef jabref
+yarn mine project JabRef jabref
 
 # Calculate the time between 2 dates
 # Usefull to measure the time execution between intervals
@@ -36,9 +36,9 @@ yarn mine clear
 
 * Visualizar os repositórios no banco de dados
 * Gerar o CSV: 
-  * campos boleanos devem ser representados com 0 e 1.
+  * campos boleanos são representados com 0 e 1.
   * campos sem valor devem ficar vazios
-  * `age` deve ser representado em meses
+  * `age` é representado em meses
   * campos na seguinte order:
 
 | Pos. | Nome                    | Tipo          | Categoria    |
