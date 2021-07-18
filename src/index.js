@@ -3,6 +3,7 @@ const runner = require("./with-functions");
 const db = require("./database");
 const diffTime = require("./diffTime");
 const readFileLines = require("./readFileLines");
+const joinOutputs = require("./joinOutputs");
 
 const args = process.argv.slice(2);
 
@@ -12,6 +13,7 @@ function help() {
   console.error("Usage: yarn mine project [project-owner] [project-name]");
   console.error("Usage: yarn mine file [filename]");
   console.error("Usage: yarn mine diff-time [date-1] [date-2]");
+  console.error("Usage: yarn mine join-outputs [output-path]");
 }
 
 switch (cmd) {
@@ -40,6 +42,14 @@ switch (cmd) {
     }
     break;
   }
+  case "join-outputs":
+    if (args.length === 1) {
+      joinOutputs(args[0]);
+    } else {
+      console.error("Invalid number of arguments");
+      help();
+    }
+    break;
   case "clear": {
     db.connect()
       .then(() => db.clear())
