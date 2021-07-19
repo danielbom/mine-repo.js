@@ -36,29 +36,8 @@ const parseMillisecondsIntoReadableTime = require("./parseMillisecondsIntoReadab
 const countBy = require("./countBy");
 const groupBy = require("./groupBy");
 const monthsUntilToday = require("./monthsUntilToday");
-
-const sleep = (ms) => new Promise((res) => setTimeout(res, ms));
-
-async function catchSafeErrors(err) {
-  if (err.isAxiosError) {
-    switch (err.response.status) {
-      case 404:
-        return err.response;
-    }
-  }
-  throw err;
-}
-
-async function fetch(url) {
-  fetch.count++;
-  const count = fetch.count.toString().padStart(6, " ");
-  logger.info(`[${count}]: ${url}`);
-
-  const httpPromise = api.get(url).catch(catchSafeErrors);
-  const [data] = await Promise.all([httpPromise, sleep(500)]);
-  return data;
-}
-fetch.count = 0;
+const fetch = require("./fetch");
+const sleep = require("./sleep");
 
 async function _runner({
   projectOwner,
