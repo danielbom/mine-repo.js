@@ -602,15 +602,19 @@ async function runnerWithRetry({
   projectOwner,
   spinner,
   timeIt,
-  tries = 0,
+  tries = {
+    apiLimitReached: 0,
+    invalidServerResponse: 0,
+  },
   nextTime = DEFAULT_RESTART_DELAY,
 }) {
   // Configure a rotate api key
   const keysCount = config.GITHUB_APIKEYS.length;
-  const githubApi = config.GITHUB_APIKEYS[tries % keysCount];
+  const githubApi = config.GITHUB_APIKEYS[tries.apiLimitReached % keysCount];
   api.defaults.headers.Authorization = `Bearer ${githubApi}`;
 
-  let apiLimitReached = false;
+  let apiLimitReached = false; // http status code 403
+  let invalidServerResponse = false; // http status code 502
 
   try {
     // Test of API connection
@@ -635,12 +639,13 @@ async function runnerWithRetry({
 
     if (err.isAxiosError) {
       apiLimitReached = err.response.status === 403;
+      invalidServerResponse = err.response.status === 502;
     }
   }
 
   // retry
   if (apiLimitReached) {
-    logger.info("API limit reached");
+    logger.info(`[${tries.apiLimitReached}] API limit reached`);
     logger.info("Waiting 1 min to try again...");
     await sleep(nextTime);
     await runnerWithRetry({
@@ -649,7 +654,32 @@ async function runnerWithRetry({
       projectOwner,
       spinner,
       timeIt,
-      tries: tries + 1,
+      tries: {
+        apiLimitReached: tries.apiLimitReached + 1,
+        invalidServerResponse: 0,
+      },
+      nextTime,
+    });
+  }
+  if (invalidServerResponse) {
+    logger.info(`[${tries.invalidServerResponse}] Invalid Server Response`);
+    if (tries.invalidServerResponse === 10) {
+      logger.info("Retries limit reached");
+      return;
+    }
+
+    logger.info("Waiting 10 secs. to try again...");
+    await sleep(10_000);
+    await runnerWithRetry({
+      identifier,
+      projectName,
+      projectOwner,
+      spinner,
+      timeIt,
+      tries: {
+        apiLimitReached: 0,
+        invalidServerResponse: tries.invalidServerResponse + 1,
+      },
       nextTime,
     });
   }
