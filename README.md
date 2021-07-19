@@ -143,6 +143,31 @@ https://api.github.com/repos/{}/contributors
   - [x] Número de seguidores
   - [x] Contagem das interações do usuário com o repositório antes do pull request
 
+## Operações sobre o mongo com Docker
+
+```bash
+# fazendo um backup
+docker exec -it mongo bash
+mongodump --uri="mongodb://localhost:27017/repo-mine" --out=./backup
+exit
+# ou
+docker exec -it mongo mongodump --uri="mongodb://localhost:27017/repo-mine" --out=./backup
+
+# Copiando o backup para o hospedeiro
+docker cp mongo:/backup ./backup/
+
+# Copiando o backup para o container
+docker cp ./backup/repo-mine/ mongo:/backup/repo-mine
+
+# fazendo a restauração do backup
+docker exec -it mongo bash
+mongorestore --uri="mongodb://localhost:27017/repo-mine" --db=repo-mine /backup/repo-mine/
+exit
+# ou
+docker exec -it mongo mongorestore --uri="mongodb://localhost:27017/repo-mine" --db=repo-mine /backup/repo-mine/
+```
+
+
 ## Referencias
 
 * [Informações sobre atualização do uso da chave de api do github](https://developer.github.com/changes/2020-02-10-deprecating-auth-through-query-param/)
