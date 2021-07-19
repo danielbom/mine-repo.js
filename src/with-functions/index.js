@@ -50,13 +50,15 @@ async function catchSafeErrors(err) {
 }
 
 async function fetch(url) {
-  logger.info(url);
-  const [data] = await Promise.all([
-    api.get(url).catch(catchSafeErrors),
-    sleep(500),
-  ]);
+  fetch.count++;
+  const count = fetch.count.toString().padStart(6, " ");
+  logger.info(`[${count}]: ${url}`);
+
+  const httpPromise = api.get(url).catch(catchSafeErrors);
+  const [data] = await Promise.all([httpPromise, sleep(500)]);
   return data;
 }
+fetch.count = 0;
 
 async function _runner({
   projectOwner,
