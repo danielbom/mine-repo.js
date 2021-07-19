@@ -1,7 +1,7 @@
-const PULL_REQUEST_PER_PAGE = 30;
+const { ITEMS_PER_PAGE } = require("./constants");
 
 function getInitialPullRequestPage(total) {
-  return Math.floor(total / PULL_REQUEST_PER_PAGE);
+  return Math.floor(total / ITEMS_PER_PAGE);
 }
 
 module.exports = getInitialPullRequestPage;
