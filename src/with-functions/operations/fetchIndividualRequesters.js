@@ -6,37 +6,39 @@ async function fetchIndividualRequesters({
   logger,
   timeIt,
   getPullRequests,
-  mapPullRequestToData,
+  getRequesterLogin,
   checkMustFetch,
-  onFetchProjectComplete,
-  storeProjectRequesterData,
-  fetchPullRequestRequester,
+  storeRequesterData,
+  fetchRequesterData,
+  onFetchRequesterComplete,
   concurrency,
 }) {
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
-  const dataSet = new Set();
+  // Parallel requirement
+  const requestersSet = new Set();
 
   logger.info(prefix + " Requesters count: " + count);
   async function mapper(pr, i) {
     i = count - i;
+    const requesterLogin = getRequesterLogin(pr);
     const percentage = computePercentage(i, count);
 
     const label = `${prefix} Fetching individual requester [${i}|${count}] ${percentage}%`;
 
-    if (dataSet.has(data)) return;
-    dataSet.add(data);
+    if (requestersSet.has(requesterLogin)) return;
+    requestersSet.add(requesterLogin);
 
     await timeIt(label, async () => {
-      const mustFetch = await checkMustFetch(data);
+      const mustFetch = await checkMustFetch(requesterLogin);
 
       if (mustFetch) {
-        const response = await fetchPullRequestRequester(data);
-        await storeProjectRequesterData(data, response.data);
+        const response = await fetchRequesterData(requesterLogin);
+        await storeRequesterData(requesterLogin, response.data);
       }
 
-      await onFetchProjectComplete(pr);
+      await onFetchRequesterComplete(pr);
     });
   }
   await Promise.map(pullRequests, mapper, { concurrency });

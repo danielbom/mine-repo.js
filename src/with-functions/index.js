@@ -397,21 +397,21 @@ async function _runner({
             })
             .lean();
         },
-        mapPullRequestToData: (pr) => pr.data.user.login,
+        getRequesterLogin: (pr) => pr.data.user.login,
         async checkMustFetch(requesterLogin) {
           const exists = await db.models.pullRequestRequester.findOne({
             requesterLogin,
           });
           return !exists;
         },
-        async onFetchProjectComplete(pr) {
+        async onFetchRequesterComplete(pr) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.requestersCollected = true;
           await pullRequest.save();
         },
-        fetchPullRequestRequester: (requesterLogin) =>
+        fetchRequesterData: (requesterLogin) =>
           fetch(getUserInformationUrl(requesterLogin)),
-        async storeProjectRequesterData(requesterLogin, data) {
+        async storeRequesterData(requesterLogin, data) {
           await db.models.pullRequestRequester.create({
             project: project._id,
             requesterLogin,
