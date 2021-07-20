@@ -46,6 +46,7 @@ async function _runner({
   identifier,
   spinner,
   timeIt,
+  concurrency,
 }) {
   const TOTAL_STEPS = 10;
   let step = 0;
@@ -150,6 +151,7 @@ async function _runner({
         prefix,
         timeIt,
         logger,
+        concurrency,
         getPullRequests() {
           return db.models.pullRequest
             .find({
@@ -187,6 +189,7 @@ async function _runner({
         prefix,
         logger,
         timeIt,
+        concurrency,
         getPullRequests() {
           return db.models.pullRequest
             .find({
@@ -230,6 +233,7 @@ async function _runner({
         prefix,
         logger,
         timeIt,
+        concurrency,
         getIssues() {
           return db.models.issue
             .find({
@@ -272,6 +276,7 @@ async function _runner({
       prefix + " Collecting if requester follows merger",
       async () => {
         await fetchPullRequestsIsFollows({
+          concurrency,
           prefix,
           logger,
           timeIt,
@@ -335,6 +340,7 @@ async function _runner({
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull requests files", async () => {
       await fetchPullRequestFiles({
+        concurrency,
         prefix,
         logger,
         timeIt,
@@ -379,6 +385,7 @@ async function _runner({
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull request requesters", async () => {
       await fetchIndividualRequesters({
+        concurrency,
         prefix,
         logger,
         timeIt,
@@ -587,11 +594,7 @@ async function runnerWithRetry({
   },
   nextTime = DEFAULT_RESTART_DELAY,
 }) {
-  // Configure a rotate api key
-  const keysCount = config.GITHUB_APIKEYS.length;
-  const githubApi = config.GITHUB_APIKEYS[tries.apiLimitReached % keysCount];
-  api.defaults.headers.Authorization = `Bearer ${githubApi}`;
-
+  const concurrency = 2;
   let apiLimitReached = false; // http status code 403
   let invalidServerResponse = false; // http status code 502
 
@@ -606,6 +609,7 @@ async function runnerWithRetry({
       identifier,
       spinner,
       timeIt,
+      concurrency,
     });
   } catch (err) {
     spinner.fail(`Error on mining the project ${identifier}`);

@@ -10,5 +10,8 @@
       "title": "Demo App",
       "pattern": "./logs/*"
     },
+  ],
+  "cSpell.words": [
+    "APIKEYS"
   ]
 }

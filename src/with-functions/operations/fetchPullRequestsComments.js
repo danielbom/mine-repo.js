@@ -1,5 +1,6 @@
 const Promise = require("bluebird");
 const safeLength = require("./safeLength");
+const computePercentage = require("./computePercentage");
 const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchPullRequestsComments({
@@ -10,15 +11,16 @@ async function fetchPullRequestsComments({
   fetchPullRequestComments,
   onFetchCommentsComplete,
   storePullRequestComment,
+  concurrency,
 }) {
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
   logger.info(prefix + " Pull requests count: " + count);
-  for (let i = 0; i < count; i++) {
-    const pr = pullRequests[i];
+  async function mapper(pr, i) {
     let page = 1;
-    const percentage = ((i / count) * 100).toFixed(0);
+    i = count - i;
+    const percentage = computePercentage(i, count);
 
     while (true) {
       let length = 0;
@@ -39,6 +41,7 @@ async function fetchPullRequestsComments({
 
     await onFetchCommentsComplete(pr);
   }
+  await Promise.map(pullRequests, mapper, { concurrency });
 }
 
 module.exports = fetchPullRequestsComments;

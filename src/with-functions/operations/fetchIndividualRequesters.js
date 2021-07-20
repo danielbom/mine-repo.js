@@ -1,3 +1,6 @@
+const Promise = require("bluebird");
+const computePercentage = require("./computePercentage");
+
 async function fetchIndividualRequesters({
   prefix,
   logger,
@@ -8,17 +11,23 @@ async function fetchIndividualRequesters({
   onFetchProjectComplete,
   storeProjectRequesterData,
   fetchPullRequestRequester,
+  concurrency,
 }) {
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
+  const dataSet = new Set();
+
   logger.info(prefix + " Requesters count: " + count);
-  for (let i = 0; i < count; i++) {
-    const pr = pullRequests[i];
-    const data = mapPullRequestToData(pr);
-    const percentage = ((i / count) * 100).toFixed(0);
+  async function mapper(pr, i) {
+    i = count - i;
+    const percentage = computePercentage(i, count);
 
     const label = `${prefix} Fetching individual requester [${i}|${count}] ${percentage}%`;
+
+    if (dataSet.has(data)) return;
+    dataSet.add(data);
+
     await timeIt(label, async () => {
       const mustFetch = await checkMustFetch(data);
 
@@ -30,6 +39,7 @@ async function fetchIndividualRequesters({
       await onFetchProjectComplete(pr);
     });
   }
+  await Promise.map(pullRequests, mapper, { concurrency });
 }
 
 module.exports = fetchIndividualRequesters;

@@ -1,3 +1,6 @@
+const Promise = require("bluebird");
+const computePercentage = require("./computePercentage");
+
 async function fetchPullRequestsIsFollows({
   prefix,
   timeIt,
@@ -9,15 +12,16 @@ async function fetchPullRequestsIsFollows({
   fetchRequesterIsFollows,
   onFetchIsFollowsComplete,
   storePullRequestIsFollows,
+  concurrency,
 }) {
   const pullRequests = await getPullRequests();
   const count = pullRequests.length;
 
   logger.info(prefix + " Pull requests count: " + count);
-  for (let i = 0; i < count; i++) {
-    const pr = pullRequests[i];
+  async function mapper(pr, i) {
     const data = mapPullRequestToData(pr);
-    const percentage = ((i / count) * 100).toFixed(0);
+    i = count - i;
+    const percentage = computePercentage(i, count);
 
     const label = `${prefix} Requester follows merger [${i}|${count}] ${percentage}%`;
     await timeIt(label, async () => {
@@ -41,6 +45,7 @@ async function fetchPullRequestsIsFollows({
       await onFetchIsFollowsComplete(pr);
     });
   }
+  await Promise.map(pullRequests, mapper, { concurrency });
 }
 
 module.exports = fetchPullRequestsIsFollows;
