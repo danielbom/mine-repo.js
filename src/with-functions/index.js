@@ -1,10 +1,10 @@
 const fs = require("fs");
 const path = require("path");
 const ora = require("ora");
+const { differenceInMonths } = require("date-fns");
 
 const db = require("../database");
 const api = require("../apis/github");
-const config = require("../config");
 
 const loadProject = require("./operations/loadProject");
 
@@ -35,7 +35,6 @@ const logger = require("./logger");
 const parseMillisecondsIntoReadableTime = require("./parseMillisecondsIntoReadableTime");
 const countBy = require("./countBy");
 const groupBy = require("./groupBy");
-const monthsUntilToday = require("./monthsUntilToday");
 const fetch = require("./fetch");
 const sleep = require("./sleep");
 
@@ -441,8 +440,9 @@ async function _runner({
       await measurePullRequestLastIterations({
         getPullRequests: () =>
           db.models.pullRequest
-            .find({ project: project._id, "data.user": { $ne: null } })
-            .lean(),
+            .aggregate()
+            .match({ project: project._id, "data.user": { $ne: null } })
+            .sort({ "data.created_at": -1 }),
         getPullRequestComments: () =>
           db.models.pullRequestComment
             .find({ project: project._id, "data.user": { $ne: null } })
@@ -528,7 +528,9 @@ async function _runner({
               ...pr,
               hasTest: Boolean(hasTestMap[pr._id]),
               isFollowing: Boolean(followChecksMap[pr._id]),
-              isCollaborator: ["MEMBER", "COLLABORATOR"].includes(association),
+              isCollaborator: ["OWNER", "MEMBER", "COLLABORATOR"].includes(
+                association
+              ),
               requesterFollowers: requester?.data?.followers || 0,
             };
           });
@@ -542,11 +544,12 @@ async function _runner({
             return dict;
           }, {});
           const createdAt = new Date(project.data.created_at);
+          const updatedAt = new Date(project.data.updated_at);
 
           return {
             project_name: project.projectName,
             language: project.data.language,
-            age: monthsUntilToday(createdAt) || 0,
+            age: differenceInMonths(updatedAt, createdAt),
             stars: project.data.stargazers_count,
             contributors_count: Object.keys(contributorsDict).length,
           };
@@ -555,7 +558,7 @@ async function _runner({
           return {
             submitter_login: pr.data.user.login,
             merger_login: pr.selfData.merged_by?.login,
-            pull_request_id: pr.selfData.id,
+            pull_request_id: pr.selfData.number,
             files_changed_count: pr.selfData.changed_files,
             changed_counts: pr.selfData.additions + pr.selfData.deletions,
             is_merged: typeof pr.selfData.merged_at === "string",
