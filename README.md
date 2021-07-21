@@ -47,6 +47,7 @@ yarn mine clear
 
 * 50 projetos com mais estrelas de cada linguagem
 
+
 ## Etapas da coleta
 
 Existem 9 etapas de coleta, dentre elas:
