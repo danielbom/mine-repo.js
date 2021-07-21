@@ -6,7 +6,7 @@ Mas, caso tenha ideias interessantes para agregar neste projeto, fique a vontade
 
 ## Guia básico para utilização
 
-É necessário obter uma [chave de api no github]((https://docs.github.com/pt/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token)) e então modificar o .env com sua chave.
+É necessário obter uma [chave de api no github](https://docs.github.com/pt/github/authenticating-to-github/keeping-your-account-and-data-secure/creating-a-personal-access-token) e então modificar o .env com sua chave.
 
 O arquivo .env.example deve ser utilizado como base para criar seu arquivo .env.
 Faça uma cópia do .env.example e renomeie para .env alterando os campo necessários.
@@ -35,6 +35,17 @@ yarn mine clear
 ## TODO
 
 * Visualizar os repositórios no banco de dados
+
+* Coletar o número de total de projetos
+
+* Filtrar por
+  * excluir forks
+  * excluir repositórios sem pull requests anterior a data da coleta
+  * excluir repositório com menos de 3 contribuidores
+
+* Quantos projetos sobram?
+
+* 50 projetos com mais estrelas de cada linguagem
 
 ## Etapas da coleta
 
