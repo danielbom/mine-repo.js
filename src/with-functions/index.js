@@ -4,6 +4,7 @@ const ora = require("ora");
 const { differenceInMonths } = require("date-fns");
 
 const db = require("../database");
+const config = require("../config");
 const api = require("../apis/github");
 
 const loadProject = require("./operations/loadProject");
@@ -597,7 +598,7 @@ async function runnerWithRetry({
   },
   nextTime = DEFAULT_RESTART_DELAY,
 }) {
-  const concurrency = 2;
+  const concurrency = Math.max(config.GITHUB_APIKEYS.length, 1);
   let apiLimitReached = false; // http status code 403
   let invalidServerResponse = false; // http status code 502
 
