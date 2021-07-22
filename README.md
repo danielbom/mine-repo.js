@@ -17,15 +17,25 @@ Alguns valores já estão configurados com o valor padrão, mas é possível alt
 Depois que você configurou seu .env, para executar digite:
 
 ```bash
-yarn # Para instalar as dependencias
+yarn # Install the dependencies
 
 # Execute the miner into one project
 # yarn mine project [projectOwner] [projectName]
-yarn mine project JabRef jabref
+yarn mine project "JabRef" "jabref"
+
+# Execute the miner into each project into the file sequentially
+# yarn mine file [filename] # must be like the file named `projects`
+yarn mine file ./projects
+
+# Each project generates a CSV into the folder ./outputs
+# To join all csvs into a single one, use:
+# yarn mine join-outputs [output-filepath]
+yarn mine join-outputs ./tmp/all-projects.csvs
 
 # Calculate the time between 2 dates
-# Usefull to measure the time execution between intervals
-yarn mine diff-time [date1] [date2] # dates are in ISO format
+# Useful to measure the time execution between intervals
+# yarn mine diff-time [date1] [date2] # dates are in ISO format
+yarn mine diff-time "2021-07-19T16:19:59.473Z" "2021-07-19T17:10:06.672Z"
 
 # Clear all database data
 # yarn mine clear
