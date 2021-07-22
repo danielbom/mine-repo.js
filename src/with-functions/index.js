@@ -487,6 +487,14 @@ async function _runner({
     const outputPath = path.join(rootPath, "outputs");
     const fileName = `${projectName}.csv`;
 
+    const cmpWith = (keyGetter) => {
+      return (a, b) => {
+        const key1 = keyGetter(a);
+        const key2 = keyGetter(b);
+        return key1 < key2 ? 1 : key1 === key2 ? 0 : -1;
+      };
+    };
+
     if (!fs.existsSync(outputPath)) {
       fs.mkdirSync(outputPath);
     }
@@ -521,7 +529,7 @@ async function _runner({
           const followChecksMap = groupBy(followChecks, (fc) => fc.pullRequest);
           const reqMap = groupBy(requesters, (req) => req.requesterLogin);
 
-          return prs.map((pr) => {
+          return prs.sort(cmpWith((x) => x.selfData.created_at)).map((pr) => {
             const association = pr.selfData.author_association;
             const requesterLogin = pr.data.user.login;
             const requester = reqMap[requesterLogin];
