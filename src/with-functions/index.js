@@ -610,6 +610,7 @@ async function runnerWithRetry({
   const concurrency = Math.max(config.GITHUB_APIKEYS.length, 1);
   let apiLimitReached = false; // http status code 403
   let invalidServerResponse = false; // http status code 502
+  let axiosRequestTimeout = false; // timeout request
 
   try {
     // Test of API connection
@@ -633,9 +634,11 @@ async function runnerWithRetry({
 
     await db.disconnect();
 
-    if (err.isAxiosError) {
+    if (err.isAxiosError && err.response) {
       apiLimitReached = err.response.status === 403;
       invalidServerResponse = err.response.status === 502;
+    } else {
+      axiosRequestTimeout = err.code === "ECONNABORTED";
     }
   }
 
@@ -675,6 +678,24 @@ async function runnerWithRetry({
       tries: {
         apiLimitReached: 0,
         invalidServerResponse: tries.invalidServerResponse + 1,
+      },
+      nextTime,
+    });
+  }
+  if (axiosRequestTimeout) {
+    logger.info(`Timeout request`);
+
+    logger.info("Waiting 10 secs. to try again...");
+    await sleep(10_000);
+    await runnerWithRetry({
+      identifier,
+      projectName,
+      projectOwner,
+      spinner,
+      timeIt,
+      tries: {
+        apiLimitReached: 0,
+        invalidServerResponse: 0,
       },
       nextTime,
     });
