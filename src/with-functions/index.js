@@ -303,6 +303,7 @@ async function _runner({
           }),
           requesterIsSameAsMerger: (data) =>
             data.requesterLogin === data.mergerLogin,
+          isBot: (data) => data.requesterLogin.includes("[bot]"),
           async fetchRequesterIsFollows(data) {
             const url = getRequesterFollowsMergerUrl(data);
             const request = await fetch(url);

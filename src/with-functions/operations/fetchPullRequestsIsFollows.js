@@ -5,6 +5,7 @@ async function fetchPullRequestsIsFollows({
   prefix,
   timeIt,
   logger,
+  isBot,
   getPullRequests,
   mapPullRequestToData,
   checkMustFetch,
@@ -25,20 +26,22 @@ async function fetchPullRequestsIsFollows({
 
     const label = `${prefix} Requester follows merger [${i}|${count}] ${percentage}%`;
     await timeIt(label, async () => {
-      const mustFetch = await checkMustFetch(data);
+      if (!isBot(data)) {
+        const mustFetch = await checkMustFetch(data);
 
-      if (mustFetch) {
-        if (requesterIsSameAsMerger(data)) {
-          await storePullRequestIsFollows(pr, data, {
-            following: false,
-            sameAsMerger: true,
-          });
-        } else {
-          const following = await fetchRequesterIsFollows(data);
-          await storePullRequestIsFollows(pr, data, {
-            following,
-            sameAsMerger: false,
-          });
+        if (mustFetch) {
+          if (requesterIsSameAsMerger(data)) {
+            await storePullRequestIsFollows(pr, data, {
+              following: false,
+              sameAsMerger: true,
+            });
+          } else {
+            const following = await fetchRequesterIsFollows(data);
+            await storePullRequestIsFollows(pr, data, {
+              following,
+              sameAsMerger: false,
+            });
+          }
         }
       }
 
