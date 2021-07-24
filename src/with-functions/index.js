@@ -533,10 +533,11 @@ async function _runner({
             const association = pr.selfData.author_association;
             const requesterLogin = pr.data.user.login;
             const requester = reqMap[requesterLogin];
+            const followCheck = followChecksMap[pr._id] || {};
             return {
               ...pr,
               hasTest: Boolean(hasTestMap[pr._id]),
-              isFollowing: Boolean(followChecksMap[pr._id]),
+              isFollowing: Boolean(followCheck.following),
               isCollaborator: ["OWNER", "MEMBER", "COLLABORATOR"].includes(
                 association
               ),
