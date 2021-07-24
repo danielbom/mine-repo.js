@@ -1,3 +1,3 @@
 module.exports = {
-  ITEMS_PER_PAGE: 30,
+  ITEMS_PER_PAGE: 100,
 };

@@ -39,6 +39,8 @@ const groupBy = require("./groupBy");
 const fetch = require("./fetch");
 const sleep = require("./sleep");
 
+const { ITEMS_PER_PAGE } = require("./operations/constants");
+
 async function _runner({
   projectOwner,
   projectName,
@@ -48,6 +50,7 @@ async function _runner({
   timeIt,
   concurrency,
 }) {
+  const PER_PAGE_QUERY = "&per_page=" + ITEMS_PER_PAGE;
   const TOTAL_STEPS = 10;
   let step = 0;
 
@@ -98,8 +101,14 @@ async function _runner({
             });
           }
         },
-        fetchPullRequests: async (page) =>
-          fetch(getClosedPullRequestsUrl({ projectName, projectOwner, page })),
+        fetchPullRequests: async (page) => {
+          const url = getClosedPullRequestsUrl({
+            projectName,
+            projectOwner,
+            page,
+          });
+          return fetch(url + PER_PAGE_QUERY);
+        },
         initialPage,
       });
 
@@ -133,8 +142,10 @@ async function _runner({
             });
           }
         },
-        fetchIssues: (page) =>
-          fetch(getClosedIssuesUrl({ projectName, projectOwner, page })),
+        fetchIssues: (page) => {
+          const url = getClosedIssuesUrl({ projectName, projectOwner, page });
+          return fetch(url + PER_PAGE_QUERY);
+        },
         initialPage,
       });
 
@@ -198,8 +209,10 @@ async function _runner({
             })
             .lean();
         },
-        fetchPullRequestComments: (pr, page) =>
-          fetch(`${pr.data.url}/comments?page=${page}`),
+        fetchPullRequestComments: (pr, page) => {
+          const url = `${pr.data.url}/comments?page=${page}`;
+          return fetch(url + PER_PAGE_QUERY);
+        },
         async onFetchCommentsComplete(pr) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.commentsCollected = true;
@@ -247,8 +260,10 @@ async function _runner({
           issue.commentsCollected = true;
           await issue.save();
         },
-        fetchIssueComments: (isu, page) =>
-          fetch(`${isu.data.url}/comments?page=${page}`),
+        fetchIssueComments: (isu, page) => {
+          const url = `${isu.data.url}/comments?page=${page}`;
+          return fetch(url + PER_PAGE_QUERY);
+        },
         async storeIssueComment(isu, data) {
           const exists = await db.models.issueComment.findOne({
             "data.id": data.id,
@@ -353,7 +368,10 @@ async function _runner({
             })
             .lean();
         },
-        fetchFiles: (pr, page) => fetch(`${pr.data.url}/files?page=${page}`),
+        fetchFiles: (pr, page) => {
+          const url = `${pr.data.url}/files?page=${page}`;
+          return fetch(url + PER_PAGE_QUERY);
+        },
         async onFetchFilesComplete(pr) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
           pullRequest.filesCollected = true;
