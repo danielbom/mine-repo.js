@@ -7,17 +7,30 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "Launch Program",
+      "name": "Launch Project",
       "skipFiles": [
         "<node_internals>/**"
       ],
       "program": "${workspaceFolder}/src/index.js",
       "runtimeExecutable": "/home/daniel/.asdf/shims/node",
       "args": [
-        "mine",
         "project",
         "paularmstrong",
         "normalizr"
+      ]
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Launch Files",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/src/index.js",
+      "runtimeExecutable": "/home/daniel/.asdf/shims/node",
+      "args": [
+        "file",
+        "projects"
       ]
     }
   ]
