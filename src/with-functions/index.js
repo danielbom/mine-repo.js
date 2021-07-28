@@ -592,6 +592,7 @@ async function _runner({
             changed_counts: pr.selfData.additions + pr.selfData.deletions,
             is_merged: typeof pr.selfData.merged_at === "string",
             pr_comments_count: pr.selfData.comments || 0,
+            pr_review_comments_count: pr.selfData.review_comments || 0,
             has_test: pr.hasTest,
             prior_iterations_count: pr.lastIterations,
             is_following: pr.isFollowing,
