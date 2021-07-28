@@ -13,6 +13,7 @@ const fields = [
   "changed_counts",
   "is_merged",
   "pr_comments_count",
+  "pr_review_comments_count",
   "has_test",
   "is_following",
   "followers_count",
