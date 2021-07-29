@@ -127,10 +127,10 @@ https://api.github.com/repos/{}/contributors
 ![Git Torrent MER](./docs/mer-git-torrent-database.png)
 
 * Coletar o número de total de projetos:
-* Filtrar por
-  * excluir forks
-  * excluir repositórios sem pull requests anterior a data da coleta
-  * excluir repositório com menos de 3 contribuidores
+* Filtro para os projetos:
+  * Excluir forks
+  * Excluir projetos sem pull requests anterior a data da coleta
+  * Excluir projetos com menos de 3 contribuidores
 
 ```sql
 SELECT COUNT(1) FROM projects;
@@ -186,6 +186,82 @@ WHERE p.forked_from IS NULL AND
         )
     )
   )
+-- Resultado: 74.162.016
+-- 1 row in set (1 hour 4 min 31.14 sec)
+```
+
+## Trabalhando com linguagens específicas
+
+* 100 projetos com mais estrelas de cada linguagem
+  - Javascript
+  - Python
+  - Java
+  - Typescript
+  - C#
+  - PHP
+  - C++
+  - C
+  - Objective-C
+  - Ruby
+
+```sql
+SELECT COUNT(DISTINCT(language)) FROM projects;
+-- Resultado: 449
+-- 1 row in set (13 min 27.37 sec)
+
+SELECT COUNT(1) FROM projects GROUP BY language;
+-- ERROR 1114 (HY000): The table '/tmp/#sql704c2_144_4' is full
+-- OBS: A cláusula "GROUP BY" causa estouro de memória.
+
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'JavaScript';  -- Resultado: 9.299.197   1 row in set (13 min 17.55 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'Python';      -- Resultado: 5.291.254   1 row in set (13 min 12.43 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'Java';        -- Resultado: 5.269.084   1 row in set (13 min 18.90 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'TypeScript';  -- Resultado: 620.832     1 row in set (13 min 13.84 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'C#';          -- Resultado: 1.266.816   1 row in set (13 min 13.32 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'PHP';         -- Resultado: 2.075.160   1 row in set (13 min 15.17 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'C++';         -- Resultado: 2.081.785   1 row in set (13 min 14.13 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'C';           -- Resultado: 1.695.293   1 row in set (13 min 11.97 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'Objective-C'; -- Resultado: 954.286     1 row in set (13 min 17.28 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL AND `language` = 'Ruby';        -- Resultado: 2.968.006   1 row in set (13 min 12.27 sec)
+
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'JavaScript';  -- Resultado: 10.898.701  1 row in set (11 min 40.89 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'Python';      -- Resultado: 5.341.872   1 row in set (11 min 49.48 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'Java';        -- Resultado: 6.647.864   1 row in set (11 min 41.55 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'TypeScript';  -- Resultado: 1.478.122   1 row in set (11 min 48.17 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'C#';          -- Resultado: 1.988.428   1 row in set (11 min 28.62 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'PHP';         -- Resultado: 2.325.151   1 row in set (11 min 40.75 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'C++';         -- Resultado: 2.036.726   1 row in set (11 min 18.44 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'C';           -- Resultado: 1.990.407   1 row in set (11 min 45.48 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'Objective-C'; -- Resultado: 429.458     1 row in set (11 min 26.79 sec)
+SELECT COUNT(1) FROM projects WHERE forked_from IS NULL AND `language` = 'Ruby';        -- Resultado: 2.351.045   1 row in set (11 min 35.54 sec)
+
+-- Consulta atual
+
+SELECT p.id, p.name, p.language, w.watchers_count
+FROM projects p
+JOIN (SELECT w.repo_id, COUNT(1) AS watchers_count
+      FROM watchers w
+      GROUP BY w.repo_id
+    ) w ON w.repo_id = p.id
+WHERE p.`language` = 'JavaScript'
+  AND p.forked_from IS NULL
+  AND p.id IN (
+    SELECT DISTINCT pr.base_repo_id
+    FROM pull_requests pr
+    WHERE pr.id IN (
+      SELECT DISTINCT prh1.pull_request_id
+      FROM pull_request_history prh1
+      WHERE prh1.`action` IN ('merged', 'closed') AND
+        prh1.actor_id IN (
+          SELECT DISTINCT prh.actor_id
+          FROM pull_request_history prh
+          GROUP BY prh.actor_id
+          HAVING COUNT(prh.actor_Id) >= 3
+        )
+    )
+  )
+ORDER BY w.watchers_count DESC
+LIMIT 100;
 ```
 
 ## Dados coletadas
@@ -244,35 +320,12 @@ docker exec -it mongo mongorestore --uri="mongodb://localhost:27017/repo-mine" -
 
 ## TODO
 
-* 100 projetos com mais estrelas de cada linguagem
-  - Javascript
-  - Python
-  - Java
-  - Typescript
-  - C#
-  - PHP
-  - C++
-  - C
-  - Objective-C
-  - Ruby
-
-```sql
-SELECT COUNT(DISTINCT(language)) FROM projects;
--- Resultado: 449
--- 1 row in set (13 min 27.37 sec)
-
-SELECT COUNT(1) FROM projects GROUP BY language;
--- ERROR 1114 (HY000): The table '/tmp/#sql704c2_144_4' is full
--- A cláusula "GROUP BY" causa estouro de memória.
-
-```
-
 * Separação das linguagens por grupos:
 
-Daniel e Luiz: PHP, Javascript
+Daniel e Luiz: PHP, JavaScript
 Golom e Jonas: Objective-C, C
 Henrique e Alan: C++, Python, Ruby
-Luis Otávio e Rafael: Java, Typescript, C#
+Luis Otávio e Rafael: Java, TypeScript, C#
 
 * Tarefa:
 
