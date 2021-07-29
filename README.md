@@ -42,22 +42,6 @@ yarn mine diff-time "2021-07-19T16:19:59.473Z" "2021-07-19T17:10:06.672Z"
 yarn mine clear
 ```
 
-## TODO
-
-* Visualizar os repositórios no banco de dados
-
-* Coletar o número de total de projetos
-
-* Filtrar por
-  * excluir forks
-  * excluir repositórios sem pull requests anterior a data da coleta
-  * excluir repositório com menos de 3 contribuidores
-
-* Quantos projetos sobram?
-
-* 50 projetos com mais estrelas de cada linguagem
-
-
 ## Etapas da coleta
 
 Existem 9 etapas de coleta, dentre elas:
@@ -136,6 +120,74 @@ https://api.github.com/repos/{}/contributors
 |  17  | is_collaborator          | bool          | usuário      |
 |  18  | prior_iterations_count   | bool          | usuário      |
 
+## Análise do banco de dados do Git Torrent
+
+* O banco de dados de repositórios do Git Torrent.
+
+![Git Torrent MER](./docs/mer-git-torrent-database.png)
+
+* Coletar o número de total de projetos:
+* Filtrar por
+  * excluir forks
+  * excluir repositórios sem pull requests anterior a data da coleta
+  * excluir repositório com menos de 3 contribuidores
+
+```sql
+SELECT COUNT(1) FROM projects;
+-- Resultado: 189.467.747
+-- 1 row in set (0.00 sec)
+
+SELECT COUNT(1) FROM pull_requests;
+-- Resultado: 109.545.627
+-- 1 row in set (0.01 sec)
+
+SELECT COUNT(1) FROM pull_request_history
+-- Resultado: 252.123.337
+-- 1 row in set (0.00 sec)
+
+SELECT COUNT(1) FROM projects WHERE forked_from IS NOT NULL;
+-- Resultado: 68.554.938
+-- 1 row in set (31.53 sec)
+
+SELECT COUNT(p.id)
+FROM projects p
+WHERE p.forked_from IS NULL AND
+  p.id IN (
+    SELECT DISTINCT pr.base_repo_id
+    FROM pull_requests pr
+    WHERE pr.id IN (
+      SELECT DISTINCT prh1.pull_request_id
+      FROM pull_request_history prh1
+      WHERE prh1.`action` IN ('merged', 'closed') AND
+        prh1.actor_id IN (
+          SELECT DISTINCT prh.actor_id
+          FROM pull_request_history prh
+          GROUP BY prh.actor_id
+          HAVING COUNT(prh.actor_Id) >= 3
+        )
+    )
+  )
+-- Resultado: 8.903.934
+-- 1 row in set (45 min 6.64 sec)
+
+SELECT COUNT(p.id)
+FROM projects p
+INNER JOIN pull_requests pr ON p.id = pr.base_repo_id
+WHERE p.forked_from IS NULL AND
+  pr.id IN (
+      SELECT DISTINCT prh1.pull_request_id
+      FROM pull_request_history prh1
+      WHERE prh1.`action` IN ('merged', 'closed') AND
+        prh1.actor_id IN (
+          SELECT DISTINCT prh.actor_id
+          FROM pull_request_history prh
+          GROUP BY prh.actor_id
+          HAVING COUNT(prh.actor_Id) >= 3
+        )
+    )
+  )
+```
+
 ## Dados coletadas
 
 - [x] Projeto
@@ -190,6 +242,43 @@ exit
 docker exec -it mongo mongorestore --uri="mongodb://localhost:27017/repo-mine" --db=repo-mine /backup/repo-mine/
 ```
 
+## TODO
+
+* 100 projetos com mais estrelas de cada linguagem
+  - Javascript
+  - Python
+  - Java
+  - Typescript
+  - C#
+  - PHP
+  - C++
+  - C
+  - Objective-C
+  - Ruby
+
+```sql
+SELECT COUNT(DISTINCT(language)) FROM projects;
+-- Resultado: 449
+-- 1 row in set (13 min 27.37 sec)
+
+SELECT COUNT(1) FROM projects GROUP BY language;
+-- ERROR 1114 (HY000): The table '/tmp/#sql704c2_144_4' is full
+-- A cláusula "GROUP BY" causa estouro de memória.
+
+```
+
+* Separação das linguagens por grupos:
+
+Daniel e Luiz: PHP, Javascript
+Golom e Jonas: Objective-C, C
+Henrique e Alan: C++, Python, Ruby
+Luis Otávio e Rafael: Java, Typescript, C#
+
+* Tarefa:
+
+Entrar nos projetos e conferir se tem 3 contribuidores e 3 pull requests fechados. 
+Verificar se o projeto não é um tutorial.
+Anotar a quantidade de pull requests de cada projeto.
 
 ## Referencias
 
