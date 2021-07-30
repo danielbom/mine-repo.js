@@ -1,7 +1,6 @@
 // const runner = require("./with-class");
 const runner = require("./with-functions");
 const db = require("./database");
-const diffTime = require("./diffTime");
 const readFileLines = require("./readFileLines");
 const joinOutputs = require("./joinOutputs");
 
@@ -12,7 +11,6 @@ const cmd = args.shift();
 function help() {
   console.error("Usage: yarn mine project [project-owner] [project-name]");
   console.error("Usage: yarn mine file [filename]");
-  console.error("Usage: yarn mine diff-time [date-1] [date-2]");
   console.error("Usage: yarn mine join-outputs [output-path]");
 }
 
@@ -54,10 +52,6 @@ switch (cmd) {
     db.connect()
       .then(() => db.clear())
       .then(() => db.disconnect());
-    break;
-  }
-  case "diff-time": {
-    console.log(diffTime(args[0], args[1]));
     break;
   }
   default: {

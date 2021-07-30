@@ -30,12 +30,7 @@ yarn mine file ./projects
 # Each project generates a CSV into the folder ./outputs
 # To join all csvs into a single one, use:
 # yarn mine join-outputs [output-filepath]
-yarn mine join-outputs ./tmp/all-projects.csvs
-
-# Calculate the time between 2 dates
-# Useful to measure the time execution between intervals
-# yarn mine diff-time [date1] [date2] # dates are in ISO format
-yarn mine diff-time "2021-07-19T16:19:59.473Z" "2021-07-19T17:10:06.672Z"
+yarn mine join-outputs ./tmp/all-projects.csv
 
 # Clear all database data
 # yarn mine clear
