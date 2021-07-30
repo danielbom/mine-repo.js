@@ -31,10 +31,6 @@ yarn mine file ./projects
 # To join all csvs into a single one, use:
 # yarn mine join-outputs [output-filepath]
 yarn mine join-outputs ./tmp/all-projects.csv
-
-# Clear all database data
-# yarn mine clear
-yarn mine clear
 ```
 
 ## Etapas da coleta

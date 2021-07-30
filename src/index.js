@@ -1,6 +1,5 @@
 // const runner = require("./with-class");
 const runner = require("./with-functions");
-const db = require("./database");
 const readFileLines = require("./readFileLines");
 const joinOutputs = require("./joinOutputs");
 
@@ -48,12 +47,6 @@ switch (cmd) {
       help();
     }
     break;
-  case "clear": {
-    db.connect()
-      .then(() => db.clear())
-      .then(() => db.disconnect());
-    break;
-  }
   default: {
     help();
     break;
