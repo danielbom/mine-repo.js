@@ -124,7 +124,7 @@ https://api.github.com/repos/{}/contributors
 
 * O banco de dados de repositórios do Git Torrent.
 
-![Git Torrent MER](./docs/mer-git-torrent-database.png)
+![Git Torrent MER](./docs/mer-git-torrent-database/v1.png)
 
 * Coletar o número de total de projetos:
 * Filtro para os projetos:
@@ -169,6 +169,23 @@ WHERE p.forked_from IS NULL AND
   )
 -- Resultado: 8.903.934
 -- 1 row in set (45 min 6.64 sec)
+
+SELECT COUNT(DISTINCT(p.id)) 
+FROM projects p 
+JOIN pull_requests pr 
+JOIN pull_request_history prh1
+WHERE p.forked_from IS NULL 
+  AND pr.base_repo_id = p.id
+  AND prh1.pull_request_id = pr.id
+  AND prh1.`action` IN ('merged', 'closed')
+  AND prh1.actor_id IN (
+    SELECT DISTINCT prh.actor_id
+    FROM pull_request_history prh
+    GROUP BY prh.actor_id
+    HAVING COUNT(prh.actor_Id) >= 3
+  );
+-- Resultado: 8.903.934
+-- 1 row in set (59 min 41.75 sec)
 
 SELECT COUNT(p.id)
 FROM projects p
@@ -336,3 +353,6 @@ Anotar a quantidade de pull requests de cada projeto.
 ## Referencias
 
 * [Informações sobre atualização do uso da chave de api do github](https://developer.github.com/changes/2020-02-10-deprecating-auth-through-query-param/)
+* [Clásula EXPLAIN - Mysql](https://dev.mysql.com/doc/refman/8.0/en/explain-output.html)
+* [Clásula EXPLAIN - Mariadb](https://mariadb.com/kb/en/explain/)
+* [CTM (Common Table Expressions) - Mysql](https://dev.mysql.com/doc/refman/8.0/en/with.html)
