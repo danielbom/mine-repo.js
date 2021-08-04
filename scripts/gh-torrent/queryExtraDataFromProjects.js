@@ -10,8 +10,8 @@ function queryExtraDataById(projectId) {
   SELECT p.id,
     p.url,
     COUNT(1) as pull_requests_count,
-    COUNT(prh.\`action\` = 'merged') as merged_count,
-    COUNT(prh.\`action\` = 'closed') as closed_count
+    COUNT(CASE WHEN prh.\`action\` = 'merged' THEN 1 END) as merged_count,
+    COUNT(CASE WHEN prh.\`action\` = 'closed' THEN 1 END) as closed_count
   FROM projects p
   JOIN pull_requests pr ON pr.base_repo_id = p.id
   JOIN pull_request_history prh ON prh.pull_request_id = pr.id
