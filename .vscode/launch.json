@@ -22,7 +22,7 @@
     {
       "type": "pwa-node",
       "request": "launch",
-      "name": "Launch Files",
+      "name": "Launch File",
       "skipFiles": [
         "<node_internals>/**"
       ],
@@ -31,6 +31,20 @@
       "args": [
         "file",
         "projects"
+      ]
+    },
+    {
+      "type": "pwa-node",
+      "request": "launch",
+      "name": "Launch Join Outputs",
+      "skipFiles": [
+        "<node_internals>/**"
+      ],
+      "program": "${workspaceFolder}/src/index.js",
+      "runtimeExecutable": "/home/daniel/.asdf/shims/node",
+      "args": [
+        "join-outputs",
+        "tmp/output.csv"
       ]
     }
   ]

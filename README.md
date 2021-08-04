@@ -178,6 +178,19 @@ WHERE p.forked_from IS NULL
 -- Resultado: 8.903.934
 -- 1 row in set (59 min 41.75 sec)
 
+SELECT COUNT(DISTINCT(p.id)) 
+FROM projects p, pull_requests pr, pull_request_history prh1
+WHERE p.forked_from IS NULL 
+  AND pr.base_repo_id = p.id
+  AND prh1.pull_request_id = pr.id
+  AND prh1.`action` IN ('merged', 'closed')
+  AND prh1.actor_id IN (
+    SELECT DISTINCT prh.actor_id
+    FROM pull_request_history prh
+    GROUP BY prh.actor_id
+    HAVING COUNT(prh.actor_Id) >= 3
+  );
+
 SELECT COUNT(p.id)
 FROM projects p
 INNER JOIN pull_requests pr ON p.id = pr.base_repo_id
@@ -347,3 +360,5 @@ Anotar a quantidade de pull requests de cada projeto.
 * [Clásula EXPLAIN - Mysql](https://dev.mysql.com/doc/refman/8.0/en/explain-output.html)
 * [Clásula EXPLAIN - Mariadb](https://mariadb.com/kb/en/explain/)
 * [CTM (Common Table Expressions) - Mysql](https://dev.mysql.com/doc/refman/8.0/en/with.html)
+* [What is the meaning of filtered in mysql explain](https://dba.stackexchange.com/questions/164251/what-is-the-meaning-of-filtered-in-mysql-explain)
+* [Bash script directory](https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel)
