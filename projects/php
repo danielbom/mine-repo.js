@@ -1,0 +1,201 @@
+laravel/laravel                                   { "closed_PR": 3999, "contributors": 562, "stars": 66109 }
+danielmiessler/SecLists                           { "closed_PR": 457, "contributors": 177, "stars": 32756 }
+blueimp/jQuery-File-Upload                        { "closed_PR": 357, "contributors": 97, "stars": 31058 }
+fzaninotto/Faker                                  { "closed_PR": 1334, "contributors": 452, "stars": 25975 }
+composer/composer                                 { "closed_PR": 3195, "contributors": 899, "stars": 25436 }
+symfony/symfony                                   { "closed_PR": 25905, "contributors": 569, "stars": 25608 }
+laravel/framework                                 { "closed_PR": 21902, "contributors": 2579, "stars": 24570 }
+guzzle/guzzle                                     { "closed_PR": 1207, "contributors": 363, "stars": 21007 }
+# DesignPatternsPHP/DesignPatternsPHP               { "closed_PR": 327, "contributors": 156, "stars": 19760 }
+Seldaek/monolog                                   { "closed_PR": 889, "contributors": 388, "stars": 18938 }
+bcit-ci/CodeIgniter                               { "closed_PR": 2832, "contributors": 482, "stars": 18159 }
+sebastianbergmann/phpunit                         { "closed_PR": 1654, "contributors": 421, "stars": 17766 }
+PHPMailer/PHPMailer                               { "closed_PR": 566, "contributors": 223, "stars": 16920 }
+briannesbitt/Carbon                               { "closed_PR": 1358, "contributors": 276, "stars": 15332 }
+# WordPress/WordPress                               { "closed_PR": 545, "contributors": 62 "stars": 15294 }
+matomo-org/matomo                                 { "closed_PR": 5425, "contributors": 277, "stars": 15178 }
+nikic/PHP-Parser                                  { "closed_PR": 293, "contributors": 111, "stars": 14718 }
+# easychen/howto-make-more-money                    { "closed_PR": 15, "contributors": 13, "stars": 14710 }
+nextcloud/server                                  { "closed_PR": 14791, "contributors": 762, "stars": 14679 }
+erusev/parsedown                                  { "closed_PR": 233, "contributors": 42, "stars": 13780 }
+yiisoft/yii2                                      { "closed_PR": 7407, "contributors": 1141, "stars": 13758 }
+monicahq/monica                                   { "closed_PR": 3802, "contributors": 230, "stars": 13154 }
+barryvdh/laravel-debugbar                         { "closed_PR": 337, "contributors": 148, "stars": 12973 }
+getgrav/grav                                      { "closed_PR": 614, "contributors": 195, "stars": 12828 }
+koel/koel                                         { "closed_PR": 548, "contributors": 58, "stars": 12725 }
+filp/whoops                                       { "closed_PR": 369, "contributors": 131, "stars": 12486 }
+CachetHQ/Cachet                                   { "closed_PR": 1936, "contributors": 185, "stars": 12234 }
+# phacility/phabricator                             { "closed_PR": 279, "contributors": 213, "stars": 12177 }
+thephpleague/flysystem                            { "closed_PR": 653, "contributors": 37, "stars": 12044 }
+Intervention/image                                { "closed_PR": 240, "contributors": 96, "stars": 12042 }
+flarum/flarum                                     { "closed_PR": 75, "contributors": 24, "stars": 11745 }
+barryvdh/laravel-ide-helper                       { "closed_PR": 442, "contributors": 176, "stars": 11554 }
+# PHPOffice/PHPExcel                                { "closed_PR": 334, "contributors": 65, "stars": 11445 }
+vlucas/phpdotenv                                  { "closed_PR": 255, "contributors": 56, "stars": 11407 }
+roots/sage                                        { "closed_PR": 1476, "contributors": 212, "stars": 11334 }
+ramsey/uuid                                       { "closed_PR": 215, "contributors": 78, "stars": 11292 }
+slimphp/Slim                                      { "closed_PR": 1499, "contributors": 209, "stars": 11065 }
+octobercms/october                                { "closed_PR": 2235, "contributors": 362, "stars": 10692 }
+the-control-group/voyager                         { "closed_PR": 1993, "contributors": 356, "stars": 10561 }
+phalcon/cphalcon                                  { "closed_PR": 4137, "contributors": 255, "stars": 10458 }
+doctrine/inflector                                { "closed_PR": 138, "contributors": 63, "stars": 10435 }
+FriendsOfPHP/PHP-CS-Fixer                         { "closed_PR": 3617, "contributors": 257, "stars": 10360 }
+doctrine/lexer                                    { "closed_PR": 43, "contributors": 22, "stars": 10266 }
+doctrine/instantiator                             { "closed_PR": 62, "contributors": 29, "stars": 10222 }
+egulias/EmailValidator                            { "closed_PR": 141, "contributors": 54, "stars": 10201 }
+PHPOffice/PhpSpreadsheet                          { "closed_PR": 903, "contributors": 275, "stars": 10169 }
+tymondesigns/jwt-auth                             { "closed_PR": 568, "contributors": 75, "stars": 10116 }
+Maatwebsite/Laravel-Excel                         { "closed_PR": 442, "contributors": 151, "stars": 10083 }
+z-song/laravel-admin                              { "closed_PR": 1333, "contributors": 217, "stars": 10059 }
+phpstan/phpstan                                   { "closed_PR": 1101, "contributors": 199, "stars": 10048 }
+# docker/labs                                       { "closed_PR": 308, "contributors": 114, "stars": 10003 }
+mockery/mockery                                   { "closed_PR": 560, "contributors": 178, "stars": 9898 }
+serbanghita/Mobile-Detect                         { "closed_PR": 184, "contributors": 90, "stars": 9807 }
+spatie/laravel-permission                         { "closed_PR": 497, "contributors": 142, "stars": 9588 }
+magento/magento2                                  { "closed_PR": 12113, "contributors": 1459, "stars": 9575 }
+php-fig/log                                       { "closed_PR": 64, "contributors": 28, "stars": 9556 }
+# w7corp/easywechat                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# swiftmailer/swiftmailer                           { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# jupeter/clean-code-php                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# walkor/Workerman                                  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# dingo/api                                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# php-fig/container                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# bobthecow/psysh                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/console                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# squizlabs/PHP_CodeSniffer                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phpDocumentor/ReflectionDocBlock                  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# doctrine/orm                                      { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# deployphp/deployer                                { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# FriendsOfPHP/Goutte                               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phpDocumentor/TypeResolver                        { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phpDocumentor/ReflectionCommon                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# cakephp/cakephp                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# doctrine/dbal                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phpspec/prophecy                                  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# dompdf/dompdf                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# reactphp/reactphp                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# typecho/typecho                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/http-foundation                           { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# guyueyingmu/avbook                                { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/php-code-coverage               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# myclabs/DeepCopy                                  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# paragonie/random_compat                           { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/event-dispatcher                          { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# php-fig/simple-cache                              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/finder                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# top-think/think                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# helloqingfeng/Awsome-Front-End-learning-resource  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# googleapis/google-api-php-client                  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# owncloud/core                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/thanks                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/http-kernel                               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# YOURLS/YOURLS                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# laravel/lumen                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/debug                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# twigphp/Twig                                      { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/polyfill-mbstring                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# woocommerce/woocommerce                           { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# guzzle/psr7                                       { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# fideloper/TrustedProxy                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# doctrine/cache                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# laravel/tinker                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# webmozarts/assert                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/css-selector                              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/diff                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/var-dumper                                { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/php-file-iterator               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phar-io/manifest                                  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# hamcrest/hamcrest-php                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# DevinVinson/WordPress-Plugin-Boilerplate          { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/php-text-template               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/php-token-stream                { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# Sylius/Sylius                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# dnoegel/php-xdg-base-dir                          { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# lcobucci/jwt                                      { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# php-pm/php-pm                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/comparator                      { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# firefly-iii/firefly-iii                           { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# JakubOnderka/PHP-Console-Highlighter              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# JakubOnderka/PHP-Console-Color                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# Zizaco/entrust                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# opencart/opencart                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# kanboard/kanboard                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# doctrine/annotations                              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/exporter                        { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/translation                               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# wallabag/wallabag                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/environment                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# PrestaShop/PrestaShop                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/code-unit-reverse-lookup        { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# invoiceninja/invoiceninja                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# Laravel-Lang/lang                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/global-state                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# thephpleague/oauth2-server                        { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# fuzzdb-project/fuzzdb                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/version                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/recursion-context               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# electerious/Lychee                                { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# the-benchmarker/web-frameworks                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# fruitcake/laravel-cors                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# PHPOffice/PHPWord                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/resource-operations             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# jenssegers/laravel-mongodb                        { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phpmyadmin/phpmyadmin                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# ratchetphp/Ratchet                                { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# humhub/humhub                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# tijsverkoyen/CssToInlineStyles                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# pagekit/pagekit                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# Respect/Validation                                { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# digininja/DVWA                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# swoft-cloud/swoft                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# kalcaddle/KodExplorer                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# thephpleague/omnipay                              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# roots/bedrock                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# aws/aws-sdk-php                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# doctrine/collections                              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# mledoze/countries                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# doctrine/common                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# flarum/core                                       { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# snipe/snipe-it                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# doctrine/event-manager                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# rappasoft/laravel-boilerplate                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phan/phan                                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# sebastianbergmann/phpunit-mock-objects            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# laravel/socialite                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# mtdowling/cron-expression                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# timber/timber                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# yiisoft/yii                                       { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# vrana/adminer                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# aimeos/aimeos-laravel                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# fecshop/yii2_fecshop                              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# chriskacerguis/codeigniter-restserver             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# barryvdh/laravel-dompdf                           { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phpbrew/phpbrew                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# theseer/tokenizer                                 { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# mautic/mautic                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# elastic/elasticsearch-php                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# paragonie/awesome-appsec                          { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# spatie/laravel-backup                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# symfony/polyfill-php72                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# spatie/laravel-medialibrary                       { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# vinkla/hashids                                    { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# phpseclib/phpseclib                               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# dodgepudding/wechat-php-sdk                       { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# nikic/FastRoute                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# wp-cli/wp-cli                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# catfan/Medoo                                      { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# Ocramius/ProxyManager                             { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# php-webdriver/php-webdriver                       { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# php-fig/cache                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# easy-swoole/easyswoole                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# rectorphp/rector                                  { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# nunomaduro/phpinsights                            { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# vimeo/psalm                                       { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# akaunting/akaunting                               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# mailcow/mailcow-dockerized                        { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# bytefury/crater                                   { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# cakephp/phinx                                     { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# zircote/swagger-php                               { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# bolt/bolt                                         { "closed_PR": -1, "contributors": -1, "stars": -1 }
+# avalanche123/Imagine                              { "closed_PR": -1, "contributors": -1, "stars": -1 }
+#           
