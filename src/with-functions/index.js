@@ -646,10 +646,12 @@ async function runnerWithRetry({
       concurrency,
     });
   } catch (err) {
-    spinner.fail(`Error on mining the project ${identifier}`);
+    const msg = `Error on mining the project ${identifier}`;
+    logger.error(msg);
+    spinner.fail(msg);
     spinner.clear();
 
-    logger.info(err.message);
+    logger.error(err.message);
     logger.error(err.stack);
 
     await db.disconnect();
