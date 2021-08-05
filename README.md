@@ -341,6 +341,13 @@ docker exec -it mongo mongorestore --uri="mongodb://localhost:27017/repo-mine" -
 
 ## TODO
 
+Utilizar a API, acessando a url paginada para coletar 50 linguagens válidas.
+
+- Exemplo de URL: https://api.github.com/search/repositories?q=language:java&sort=stars&order=desc&page=2
+- Preencher tabela: https://docs.google.com/spreadsheets/d/1Gcv8YK_-KnxKeAeu_JPryLrkxSh1M_9s6vKOle3GhV0/edit?usp=sharing
+
+https://api.github.com/search/repositories?q=language:PHP&sort=stars&order=desc&page=1
+
 * Separação das linguagens por grupos:
 
 Daniel e Luiz: PHP, JavaScript

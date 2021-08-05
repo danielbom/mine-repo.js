@@ -26,12 +26,19 @@ switch (cmd) {
   case "file": {
     if (args.length === 1) {
       readFileLines(args[0], (line) => {
-        const project = line
-          .split(/\s/)
-          .slice(0, 2)
-          .map((x) => x.trim());
+        line = line.trim();
 
-        return runner(project[0], project[1]);
+        if (line.startsWith("#")) return;
+
+        let project = line.split(/\s+/);
+
+        if (project[0].includes("/")) {
+          project = project[0].split("/");
+        }
+
+        if (project.length === 2) {
+          return runner(project[0], project[1]);
+        }
       });
     } else {
       console.error("Invalid number of arguments");
