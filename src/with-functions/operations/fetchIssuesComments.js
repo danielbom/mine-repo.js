@@ -1,20 +1,21 @@
 const Promise = require("bluebird");
 const safeLength = require("./safeLength");
 const computePercentage = require("./computePercentage");
+const computePaginated = require("./computePaginated");
 const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchIssuesComments({
   prefix,
   timeIt,
   logger,
+  getIssuesCount,
   getIssues,
   fetchIssueComments,
   onFetchCommentsComplete,
   storeIssueComment,
   concurrency,
 }) {
-  const issues = await getIssues();
-  const count = issues.length;
+  const count = await getIssuesCount();
 
   logger.info(prefix + " Issues count: " + count);
   async function mapper(isu, i) {
@@ -41,7 +42,11 @@ async function fetchIssuesComments({
 
     await onFetchCommentsComplete(isu);
   }
-  await Promise.map(issues, mapper, { concurrency });
+  await computePaginated({
+    mapper,
+    concurrency,
+    getPaginated: getIssues,
+  });
 }
 
 module.exports = fetchIssuesComments;

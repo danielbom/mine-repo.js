@@ -1,5 +1,5 @@
 const computePercentage = require("./computePercentage");
-const computePaginatedPullRequests = require("./computePaginatedPullRequests");
+const computePaginated = require("./computePaginated");
 
 async function fetchIndividualRequesters({
   prefix,
@@ -42,10 +42,10 @@ async function fetchIndividualRequesters({
       await onFetchRequesterComplete(pr);
     });
   }
-  await computePaginatedPullRequests({
+  await computePaginated({
     mapper,
     concurrency,
-    getPullRequests,
+    getPaginated: getPullRequests,
   });
 }
 

@@ -267,12 +267,22 @@ async function _runner({
         logger,
         timeIt,
         concurrency,
-        getIssues() {
+        getIssuesCount() {
           return db.models.issue
             .find({
               project: project._id,
               commentsCollected: false,
             })
+            .countDocuments();
+        },
+        getIssues({ page }) {
+          return db.models.issue
+            .find({
+              project: project._id,
+              commentsCollected: false,
+            })
+            .skip(page * 100)
+            .limit(100)
             .lean();
         },
         async onFetchCommentsComplete(isu) {

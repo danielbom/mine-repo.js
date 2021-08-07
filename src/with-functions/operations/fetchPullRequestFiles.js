@@ -1,7 +1,7 @@
 const Promise = require("bluebird");
 const safeLength = require("./safeLength");
 const computePercentage = require("./computePercentage");
-const computePaginatedPullRequests = require("./computePaginatedPullRequests");
+const computePaginated = require("./computePaginated");
 const { ITEMS_PER_PAGE } = require("./constants");
 
 async function fetchPullRequestFiles({
@@ -43,10 +43,10 @@ async function fetchPullRequestFiles({
     await onFetchFilesComplete(pr);
   }
 
-  await computePaginatedPullRequests({
+  await computePaginated({
     mapper,
     concurrency,
-    getPullRequests,
+    getPaginated: getPullRequests,
   });
 }
 
