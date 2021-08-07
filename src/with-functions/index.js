@@ -501,45 +501,46 @@ async function _runner({
 
   step++; // 9
   if (!project.measurePullRequest) {
-    function countLastIteration(xs, pr) {
-      return countBy(
-        xs,
-        (x) =>
-          x.data.user.login === pr.data.user.login &&
-          x.data.created_at < pr.data.created_at
-      );
-    }
-
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Measure pull request last iterations", async () => {
       await measurePullRequestLastIterations({
         prefix,
         spinner,
 
-        getPullRequests: () =>
-          db.models.pullRequest
-            .aggregate()
-            .match({ project: project._id, "data.user": { $ne: null } })
-            .sort({ "data.created_at": -1 }),
-        getPullRequestComments: () =>
-          db.models.pullRequestComment
-            .find({ project: project._id, "data.user": { $ne: null } })
-            .lean(),
-        getIssues: () =>
-          db.models.issue
-            .find({ project: project._id, "data.user": { $ne: null } })
-            .lean(),
-        getIssuesComments: () =>
-          db.models.issueComment
-            .find({ project: project._id, "data.user": { $ne: null } })
-            .lean(),
+        getPullRequestsCount() {
+          return db.models.pullRequest
+            .find({ project: project._id })
+            .countDocuments();
+        },
+        getPullRequests({ page }) {
+          return db.models.pullRequest
+            .find({ project: project._id })
+            .skip(page * 100)
+            .limit(100)
+            .lean();
+        },
+        async calcPullRequestsIterations(pr) {
+          const filter = {
+            project: project._id,
+            "data.user.login": pr.data.user.login,
+            "data.created_at": { $lt: pr.data.created_at },
+          };
+          const pullRequests = await db.models.pullRequest
+            .find(filter)
+            .countDocuments();
+          const prsComments = await db.models.pullRequestComment
+            .find(filter)
+            .countDocuments();
+          const issues = await db.models.issue.find(filter).countDocuments();
+          const issueComments = await db.models.issueComment
+            .find(filter)
+            .countDocuments();
 
-        async calcPullRequestsIterations(elements, pr) {
           return {
-            pullRequests: countLastIteration(elements.pullRequests, pr),
-            prsComments: countLastIteration(elements.pullRequestComments, pr),
-            issues: countLastIteration(elements.issues, pr),
-            issueComments: countLastIteration(elements.issueComments, pr),
+            pullRequests,
+            prsComments,
+            issues,
+            issueComments,
           };
         },
         async updatePullRequestIterations(pr, counts) {

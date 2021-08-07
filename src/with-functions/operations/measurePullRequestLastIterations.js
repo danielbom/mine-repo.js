@@ -1,34 +1,32 @@
-const Promise = require("bluebird");
+const computePaginated = require("./computePaginated");
 const computePercentage = require("./computePercentage");
 
 async function measurePullRequestLastIterations({
   prefix,
   spinner,
-  // Collect
+
+  getPullRequestsCount,
   getPullRequests,
-  getPullRequestComments,
-  getIssues,
-  getIssuesComments,
-  // Extract
+
   calcPullRequestsIterations,
   updatePullRequestIterations,
 }) {
-  const elements = {
-    pullRequests: await getPullRequests(),
-    pullRequestComments: await getPullRequestComments(),
-    issues: await getIssues(),
-    issueComments: await getIssuesComments(),
-  };
-  const count = elements.pullRequests.length;
+  const count = await getPullRequestsCount();
 
   let i = 0;
-  await Promise.each(elements.pullRequests, async (pr) => {
+  async function mapper(pr) {
     const currentCount = i++;
     const percentage = computePercentage(currentCount, count);
     spinner.text = `${prefix} Measuring pull request [${currentCount}|${count}] ${percentage}%`;
 
-    const iterations = await calcPullRequestsIterations(elements, pr);
+    const iterations = await calcPullRequestsIterations(pr);
     await updatePullRequestIterations(pr, iterations);
+  }
+
+  await computePaginated({
+    mapper,
+    concurrency: 8,
+    getPaginated: getPullRequests,
   });
 }
 
