@@ -177,7 +177,6 @@ async function _runner({
               project: project._id,
               individualPrCollected: false,
             })
-            .skip(page * 100)
             .limit(100)
             .lean();
         },
@@ -225,7 +224,6 @@ async function _runner({
               project: project._id,
               commentsCollected: false,
             })
-            .skip(page * 100)
             .limit(100)
             .lean();
         },
@@ -281,7 +279,6 @@ async function _runner({
               project: project._id,
               commentsCollected: false,
             })
-            .skip(page * 100)
             .limit(100)
             .lean();
         },
@@ -341,7 +338,6 @@ async function _runner({
                 isFollowsCollected: false,
                 "selfData.merged_by": { $ne: null },
               })
-              .skip(page * 100)
               .limit(100)
               .lean();
           },
@@ -415,7 +411,6 @@ async function _runner({
               project: project._id,
               filesCollected: false,
             })
-            .skip(page * 100)
             .limit(100)
             .lean();
         },
@@ -473,7 +468,6 @@ async function _runner({
               project: project._id,
               requestersCollected: false,
             })
-            .skip(page * 100)
             .limit(100)
             .lean();
         },
