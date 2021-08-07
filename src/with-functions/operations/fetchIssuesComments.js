@@ -18,15 +18,16 @@ async function fetchIssuesComments({
   const count = await getIssuesCount();
 
   logger.info(prefix + " Issues count: " + count);
-  async function mapper(isu, i) {
+  let i = 0;
+  async function mapper(isu) {
     let page = 1;
-    i = count - i;
-    const percentage = computePercentage(i, count);
+    const currentCount = i++;
+    const percentage = computePercentage(currentCount, count);
 
     while (true) {
       let length = 0;
 
-      const label = `${prefix} Fetching issue comment page(${page}) [${i}|${count}] ${percentage}%`;
+      const label = `${prefix} Fetching issue comment page(${page}) [${currentCount}|${count}] ${percentage}%`;
       await timeIt(label, async () => {
         const response = await fetchIssueComments(isu, page);
         page++;
