@@ -171,7 +171,7 @@ async function _runner({
             })
             .countDocuments();
         },
-        getPullRequests({ page }) {
+        getPullRequests() {
           return db.models.pullRequest
             .find({
               project: project._id,
@@ -218,7 +218,7 @@ async function _runner({
             })
             .countDocuments();
         },
-        getPullRequests({ page }) {
+        getPullRequests() {
           return db.models.pullRequest
             .find({
               project: project._id,
@@ -331,7 +331,7 @@ async function _runner({
               })
               .countDocuments();
           },
-          getPullRequests({ page }) {
+          getPullRequests() {
             return db.models.pullRequest
               .find({
                 project: project._id,
@@ -405,7 +405,7 @@ async function _runner({
             })
             .countDocuments();
         },
-        getPullRequests({ page }) {
+        getPullRequests() {
           return db.models.pullRequest
             .find({
               project: project._id,
@@ -462,7 +462,7 @@ async function _runner({
             })
             .countDocuments();
         },
-        getPullRequests({ page }) {
+        getPullRequests() {
           return db.models.pullRequest
             .find({
               project: project._id,

@@ -28,7 +28,9 @@ async function fetchIndividualRequesters({
 
     const label = `${prefix} Fetching individual requester [${currentCount}|${count}] ${percentage}%`;
 
-    if (requestersSet.has(requesterLogin)) return;
+    if (requestersSet.has(requesterLogin)) {
+      return onFetchRequesterComplete(pr);
+    }
     requestersSet.add(requesterLogin);
 
     await timeIt(label, async () => {
