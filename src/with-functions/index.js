@@ -315,13 +315,24 @@ async function _runner({
           prefix,
           logger,
           timeIt,
-          getPullRequests() {
+          getPullRequestsCount() {
             return db.models.pullRequest
               .find({
                 project: project._id,
                 isFollowsCollected: false,
                 "selfData.merged_by": { $ne: null },
               })
+              .countDocuments();
+          },
+          getPullRequests({ page }) {
+            return db.models.pullRequest
+              .find({
+                project: project._id,
+                isFollowsCollected: false,
+                "selfData.merged_by": { $ne: null },
+              })
+              .skip(page * 100)
+              .limit(100)
               .lean();
           },
           async checkMustFetch({ mergerLogin, requesterLogin }) {

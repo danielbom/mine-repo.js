@@ -1,11 +1,12 @@
-const Promise = require("bluebird");
 const computePercentage = require("./computePercentage");
+const computePaginatedPullRequests = require("./computePaginatedPullRequests");
 
 async function fetchPullRequestsIsFollows({
   prefix,
   timeIt,
   logger,
   isBot,
+  getPullRequestsCount,
   getPullRequests,
   mapPullRequestToData,
   checkMustFetch,
@@ -15,16 +16,16 @@ async function fetchPullRequestsIsFollows({
   storePullRequestIsFollows,
   concurrency,
 }) {
-  const pullRequests = await getPullRequests();
-  const count = pullRequests.length;
+  const count = await getPullRequestsCount();
 
   logger.info(prefix + " Pull requests count: " + count);
-  async function mapper(pr, i) {
+  let i = 0;
+  async function mapper(pr) {
     const data = mapPullRequestToData(pr);
-    i = count - i;
-    const percentage = computePercentage(i, count);
+    const currentCount = i++;
+    const percentage = computePercentage(currentCount, count);
 
-    const label = `${prefix} Requester follows merger [${i}|${count}] ${percentage}%`;
+    const label = `${prefix} Requester follows merger [${currentCount}|${count}] ${percentage}%`;
     await timeIt(label, async () => {
       if (!isBot(data)) {
         const mustFetch = await checkMustFetch(data);
@@ -48,7 +49,11 @@ async function fetchPullRequestsIsFollows({
       await onFetchIsFollowsComplete(pr);
     });
   }
-  await Promise.map(pullRequests, mapper, { concurrency });
+  await computePaginatedPullRequests({
+    mapper,
+    concurrency,
+    getPullRequests,
+  });
 }
 
 module.exports = fetchPullRequestsIsFollows;
