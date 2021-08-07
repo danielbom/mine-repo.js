@@ -490,13 +490,18 @@ async function _runner({
 
         getPullRequestsCount() {
           return db.models.pullRequest
-            .find({ project: project._id })
+            .find({
+              project: project._id,
+              measureComputed: { $not: { $eq: true } },
+            })
             .countDocuments();
         },
-        getPullRequests({ page }) {
+        getPullRequests() {
           return db.models.pullRequest
-            .find({ project: project._id })
-            .skip(page * 100)
+            .find({
+              project: project._id,
+              measureComputed: { $not: { $eq: true } },
+            })
             .limit(100)
             .lean();
         },
@@ -533,6 +538,8 @@ async function _runner({
 
           // Pull requests are ignored because they are collected with issues
           pullRequest.lastIterations = counts.issues + counts.issueComments;
+
+          pullRequest.measureComputed = true;
           await pullRequest.save();
         },
       });

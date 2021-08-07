@@ -37,6 +37,7 @@ const PullRequestSchema = new mongoose.Schema(
     individualPrCollected: DefaultFalse,
     isFollowsCollected: DefaultFalse,
     requestersCollected: DefaultFalse,
+    measureComputed: DefaultFalse,
   },
   { timestamps: true }
 );
