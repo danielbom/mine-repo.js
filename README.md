@@ -369,3 +369,5 @@ Anotar a quantidade de pull requests de cada projeto.
 * [CTM (Common Table Expressions) - Mysql](https://dev.mysql.com/doc/refman/8.0/en/with.html)
 * [What is the meaning of filtered in mysql explain](https://dba.stackexchange.com/questions/164251/what-is-the-meaning-of-filtered-in-mysql-explain)
 * [Bash script directory](https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel)
+* [How to limit the RAM memory usage of mongodb](https://dba.stackexchange.com/questions/86109/limit-the-ram-memory-usage-in-mongodb)
+

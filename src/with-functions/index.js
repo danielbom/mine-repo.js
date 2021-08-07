@@ -163,12 +163,22 @@ async function _runner({
         timeIt,
         logger,
         concurrency,
-        getPullRequests() {
+        getPullRequestsCount() {
           return db.models.pullRequest
             .find({
               project: project._id,
               individualPrCollected: false,
             })
+            .countDocuments();
+        },
+        getPullRequests({ page }) {
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              individualPrCollected: false,
+            })
+            .skip(page * 100)
+            .limit(100)
             .lean();
         },
         fetchIndividualPullRequest: (pr) => fetch(pr.data.url),
@@ -201,12 +211,22 @@ async function _runner({
         logger,
         timeIt,
         concurrency,
-        getPullRequests() {
+        getPullRequestsCount() {
           return db.models.pullRequest
             .find({
               project: project._id,
               commentsCollected: false,
             })
+            .countDocuments();
+        },
+        getPullRequests({ page }) {
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              commentsCollected: false,
+            })
+            .skip(page * 100)
+            .limit(100)
             .lean();
         },
         fetchPullRequestComments: (pr, page) => {
@@ -360,12 +380,22 @@ async function _runner({
         prefix,
         logger,
         timeIt,
-        getPullRequests() {
+        getPullRequestsCount() {
           return db.models.pullRequest
             .find({
               project: project._id,
               filesCollected: false,
             })
+            .countDocuments();
+        },
+        getPullRequests({ page }) {
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              filesCollected: false,
+            })
+            .skip(page * 100)
+            .limit(100)
             .lean();
         },
         fetchFiles: (pr, page) => {
@@ -408,12 +438,22 @@ async function _runner({
         prefix,
         logger,
         timeIt,
-        getPullRequests() {
+        getPullRequestsCount() {
           return db.models.pullRequest
             .find({
               project: project._id,
               requestersCollected: false,
             })
+            .countDocuments();
+        },
+        getPullRequests({ page }) {
+          return db.models.pullRequest
+            .find({
+              project: project._id,
+              requestersCollected: false,
+            })
+            .skip(page * 100)
+            .limit(100)
             .lean();
         },
         getRequesterLogin: (pr) => pr.data.user.login,

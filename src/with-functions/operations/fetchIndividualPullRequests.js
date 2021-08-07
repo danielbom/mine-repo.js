@@ -1,30 +1,35 @@
-const Promise = require("bluebird");
 const computePercentage = require("./computePercentage");
+const computePaginatedPullRequests = require("./computePaginatedPullRequests");
 
 async function fetchIndividualPullRequests({
   prefix,
   timeIt,
   logger,
+  getPullRequestsCount,
   getPullRequests,
   fetchIndividualPullRequest,
   storeIndividualPullRequest,
   concurrency,
 }) {
-  const pullRequests = await getPullRequests();
-  const count = pullRequests.length;
+  const count = await getPullRequestsCount();
 
   logger.info(prefix + " Pull requests count: " + count);
-  async function mapper(pr, i) {
-    i = count - i;
-    const percentage = computePercentage(i, count);
+  let i = 0;
+  async function mapper(pr) {
+    const currentCount = i++;
+    const percentage = computePercentage(currentCount, count);
 
-    const label = `${prefix} Fetching individual pull request [${i}|${count}] ${percentage}%`;
+    const label = `${prefix} Fetching individual pull request [${currentCount}|${count}] ${percentage}%`;
     await timeIt(label, async () => {
       const response = await fetchIndividualPullRequest(pr);
       await storeIndividualPullRequest(pr, response.data);
     });
   }
-  await Promise.map(pullRequests, mapper, { concurrency });
+  await computePaginatedPullRequests({
+    mapper,
+    concurrency,
+    getPullRequests,
+  });
 }
 
 module.exports = fetchIndividualPullRequests;
