@@ -34,7 +34,6 @@ const generateCsv = require("./operations/generateCsv");
 
 const logger = require("./logger");
 const parseMillisecondsIntoReadableTime = require("./parseMillisecondsIntoReadableTime");
-const countBy = require("./countBy");
 const groupBy = require("./groupBy");
 const fetch = require("./fetch");
 const sleep = require("./sleep");
@@ -142,7 +141,7 @@ async function _runner({
             });
           }
         },
-        fetchIssues: (page) => {
+        fetchIssues(page) {
           const url = getClosedIssuesUrl({ projectName, projectOwner, page });
           return fetch(url + PER_PAGE_QUERY);
         },
@@ -155,7 +154,7 @@ async function _runner({
   }
 
   step++; // 4
-  if (!project.individualPrCollected) {
+  {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting individual pull requests", async () => {
       await fetchIndividualPullRequests({
@@ -188,9 +187,6 @@ async function _runner({
           await pullRequest.save();
         },
       });
-
-      project.individualPrCollected = true;
-      await project.save();
     });
   }
 
@@ -202,7 +198,7 @@ async function _runner({
   // - https://stackoverflow.com/questions/33374778/how-can-i-get-the-number-of-github-issues-using-the-github-api
   //
   // step++;
-  if (false && !project.commentsPrCollected) {
+  if (false) {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull requests comments", async () => {
       await fetchPullRequestsComments({
@@ -250,14 +246,11 @@ async function _runner({
           }
         },
       });
-
-      project.commentsPrCollected = true;
-      await project.save();
     });
   }
 
   step++; // 5
-  if (!project.commentsIssueCollected) {
+  {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting all issues comments", async () => {
       await fetchIssuesComments({
@@ -273,7 +266,7 @@ async function _runner({
             })
             .countDocuments();
         },
-        getIssues({ page }) {
+        getIssues() {
           return db.models.issue
             .find({
               project: project._id,
@@ -305,14 +298,11 @@ async function _runner({
           }
         },
       });
-
-      project.commentsIssueCollected = true;
-      await project.save();
     });
   }
 
   step++; // 6
-  if (!project.isFollowsCollected) {
+  {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(
       prefix + " Collecting if requester follows merger",
@@ -381,15 +371,12 @@ async function _runner({
             });
           },
         });
-
-        project.isFollowsCollected = true;
-        await project.save();
       }
     );
   }
 
   step++; // 7
-  if (!project.filesCollected) {
+  {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull requests files", async () => {
       await fetchPullRequestFiles({
@@ -439,14 +426,11 @@ async function _runner({
           }
         },
       });
-
-      project.filesCollected = true;
-      await project.save();
     });
   }
 
   step++; // 8
-  if (!project.requestersCollected) {
+  {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Collecting pull request requesters", async () => {
       await fetchIndividualRequesters({
@@ -493,14 +477,11 @@ async function _runner({
           });
         },
       });
-
-      project.requestersCollected = true;
-      await project.save();
     });
   }
 
   step++; // 9
-  if (!project.measurePullRequest) {
+  {
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Measure pull request last iterations", async () => {
       await measurePullRequestLastIterations({
@@ -555,9 +536,6 @@ async function _runner({
           await pullRequest.save();
         },
       });
-
-      project.measurePullRequest = true;
-      project.save();
     });
   }
 

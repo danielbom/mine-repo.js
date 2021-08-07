@@ -17,13 +17,6 @@ const ProjectSchema = new mongoose.Schema(
     languages: Object, // Response of github API
     pullsCollected: DefaultFalse,
     issuesCollected: DefaultFalse,
-    individualPrCollected: DefaultFalse,
-    commentsPrCollected: DefaultFalse,
-    commentsIssueCollected: DefaultFalse,
-    isFollowsCollected: DefaultFalse,
-    requestersCollected: DefaultFalse,
-    filesCollected: DefaultFalse,
-    measurePullRequest: DefaultFalse,
   },
   { timestamps: true }
 );
