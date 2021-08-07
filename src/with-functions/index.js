@@ -519,6 +519,9 @@ async function _runner({
     const prefix = `[${step}|${TOTAL_STEPS}]`;
     await timeIt(prefix + " Measure pull request last iterations", async () => {
       await measurePullRequestLastIterations({
+        prefix,
+        spinner,
+
         getPullRequests: () =>
           db.models.pullRequest
             .aggregate()
