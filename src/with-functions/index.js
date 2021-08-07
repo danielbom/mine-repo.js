@@ -479,7 +479,7 @@ async function _runner({
         },
       });
 
-      project.isFollowsCollected = true;
+      project.requestersCollected = true;
       await project.save();
     });
   }
