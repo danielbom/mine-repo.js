@@ -485,7 +485,7 @@ async function _runner({
   }
 
   step++; // 9
-  {
+  if (!project.measurePullRequest) {
     function countLastIteration(xs, pr) {
       return countBy(
         xs,
@@ -536,6 +536,9 @@ async function _runner({
           await pullRequest.save();
         },
       });
+
+      project.measurePullRequest = true;
+      project.save();
     });
   }
 

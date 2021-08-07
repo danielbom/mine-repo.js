@@ -23,6 +23,7 @@ const ProjectSchema = new mongoose.Schema(
     isFollowsCollected: DefaultFalse,
     requestersCollected: DefaultFalse,
     filesCollected: DefaultFalse,
+    measurePullRequest: DefaultFalse,
   },
   { timestamps: true }
 );
