@@ -568,57 +568,16 @@ async function _runner({
     await timeIt(prefix + " Generating CSV of " + identifier, async () => {
       await generateCsv({
         resultPath: path.join(outputPath, fileName),
-        getProject: () => project.toJSON(),
-        async getPullRequests() {
-          const prs = await db.models.pullRequest
-            .find({ project: project._id })
-            .lean();
-          const followChecks = await db.models.followCheck
-            .find({ project: project._id })
-            .lean();
-          const requesters = await db.models.pullRequestRequester
-            .find({ project: project._id })
-            .lean();
-
-          const files = await db.models.pullRequestFile
+        async getProject() {
+          const [{ contributors_count }] = await db.models.pullRequest
             .aggregate()
             .match({
               project: project._id,
-              "data.filename": {
-                $regex: "test",
-                $options: "i",
-              },
+              "selfData.merged_at": { $ne: null },
             })
-            .group({ _id: "$pullRequest" });
+            .group({ _id: "$data.user.login" })
+            .count("contributors_count");
 
-          const hasTestMap = groupBy(files, (file) => file._id);
-          const followChecksMap = groupBy(followChecks, (fc) => fc.pullRequest);
-          const reqMap = groupBy(requesters, (req) => req.requesterLogin);
-
-          return prs.sort(cmpWith((x) => x.selfData.created_at)).map((pr) => {
-            const association = pr.selfData.author_association;
-            const requesterLogin = pr.data.user.login;
-            const requester = reqMap[requesterLogin];
-            const followCheck = followChecksMap[pr._id] || {};
-            return {
-              ...pr,
-              hasTest: Boolean(hasTestMap[pr._id]),
-              isFollowing: Boolean(followCheck.following),
-              isCollaborator: ["OWNER", "MEMBER", "COLLABORATOR"].includes(
-                association
-              ),
-              requesterFollowers: requester?.data?.followers || 0,
-            };
-          });
-        },
-        transformProject(project, pullRequests) {
-          const contributorsDict = pullRequests.reduce((dict, pr) => {
-            if (pr.selfData.merged_at) {
-              const requesterLogin = pr.data.user.login;
-              dict[requesterLogin] = (dict[requesterLogin] || 0) + 1;
-            }
-            return dict;
-          }, {});
           const createdAt = new Date(project.data.created_at);
           const updatedAt = new Date(project.data.updated_at);
 
@@ -627,25 +586,67 @@ async function _runner({
             language: project.data.language,
             age: differenceInMonths(updatedAt, createdAt),
             stars: project.data.stargazers_count,
-            contributors_count: Object.keys(contributorsDict).length,
+            contributors_count,
           };
         },
-        transformPullRequest(pr) {
-          return {
-            submitter_login: pr.data.user.login,
-            merger_login: pr.selfData.merged_by?.login,
-            pull_request_id: pr.selfData.number,
-            files_changed_count: pr.selfData.changed_files,
-            changed_counts: pr.selfData.additions + pr.selfData.deletions,
-            is_merged: typeof pr.selfData.merged_at === "string",
-            pr_comments_count: pr.selfData.comments || 0,
-            pr_review_comments_count: pr.selfData.review_comments || 0,
-            has_test: pr.hasTest,
-            prior_iterations_count: pr.lastIterations,
-            is_following: pr.isFollowing,
-            is_collaborator: pr.isCollaborator,
-            followers_count: pr.requesterFollowers,
-          };
+        async getPullRequests() {
+          const prs = await db.models.pullRequest
+            .aggregate()
+            .match({ project: project._id })
+            .project({
+              _id: 1,
+              createdAt: "$selfData.created_at",
+              // CSV
+              submitter_login: "$data.user.login",
+              merger_login: "$selfData.merged_by.login",
+              pull_request_id: "$selfData.number",
+              files_changed_count: "$selfData.changed_files",
+              changed_counts: {
+                $add: ["$selfData.additions", "$selfData.deletions"],
+              },
+              is_merged: {
+                $eq: [{ $type: "$selfData.merged_at" }, "string"],
+              },
+              pr_comments_count: "$selfData.comments",
+              pr_review_comments_count: "$selfData.review_comments",
+              is_collaborator: {
+                $in: [
+                  "$selfData.author_association",
+                  ["OWNER", "MEMBER", "COLLABORATOR"],
+                ],
+              },
+              prior_iterations_count: "$lastIterations",
+            });
+          const followChecks = await db.models.followCheck
+            .aggregate()
+            .match({ project: project._id })
+            .project({ pullRequest: 1, following: 1 });
+          const requesters = await db.models.pullRequestRequester
+            .aggregate()
+            .match({ project: project._id })
+            .project({ "data.followers": 1, requesterLogin: 1 });
+          const files = await db.models.pullRequestFile
+            .aggregate()
+            .match({
+              project: project._id,
+              "data.filename": { $regex: "test", $options: "i" },
+            })
+            .group({ _id: "$pullRequest" });
+
+          const hasTestMap = groupBy(files, (file) => file._id);
+          const followChecksMap = groupBy(followChecks, (fc) => fc.pullRequest);
+          const reqMap = groupBy(requesters, (req) => req.requesterLogin);
+
+          return prs.sort(cmpWith((x) => x.createdAt)).map((pr) => {
+            const requester = reqMap[pr.submitter_login];
+            const followCheck = followChecksMap[pr._id] || {};
+            return {
+              ...pr,
+              has_test: Boolean(hasTestMap[pr._id]),
+              is_following: Boolean(followCheck.following),
+              followers_count: requester?.data?.followers || 0,
+            };
+          });
         },
       });
     });

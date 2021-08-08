@@ -23,13 +23,6 @@ const fields = [
 
 const HEADER = fields.join(",");
 
-function checkTransformation(data) {
-  const invalidKeys = Object.keys(data).filter((key) => !fields.includes(key));
-  if (invalidKeys.length > 0) {
-    throw new Error(`Using invalid keys: ${invalidKeys.join("")}`);
-  }
-}
-
 function isNil(obj) {
   return obj === null || obj === undefined;
 }
@@ -50,13 +43,7 @@ function fieldsToRow(data) {
   );
 }
 
-async function generateCsv({
-  resultPath,
-  getProject,
-  getPullRequests,
-  transformProject,
-  transformPullRequest,
-}) {
+async function generateCsv({ resultPath, getProject, getPullRequests }) {
   // Extract data
   const project = await getProject();
   const pullRequests = await getPullRequests();
@@ -64,18 +51,8 @@ async function generateCsv({
   const writer = fs.createWriteStream(resultPath);
   writer.write(HEADER + "\n");
 
-  const projectFields = transformProject(project, pullRequests);
-  checkTransformation(projectFields);
-
   pullRequests.forEach((pr) => {
-    const pullRequestFields = transformPullRequest(pr);
-    checkTransformation(pullRequestFields);
-    writer.write(
-      fieldsToRow({
-        ...pullRequestFields,
-        ...projectFields,
-      })
-    );
+    writer.write(fieldsToRow({ ...pr, ...project }));
   });
 
   writer.end();
