@@ -15,7 +15,10 @@ function help() {
 
 switch (cmd) {
   case "project": {
-    if (args.length === 2) {
+    if (args.length === 1 && args[0].includes("/")) {
+      const project = args[0].split("/");
+      runner(project[0], project[1]);
+    } else if (args.length === 2) {
       runner(args[0], args[1]);
     } else {
       console.error("Invalid number of arguments");
