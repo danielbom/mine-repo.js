@@ -16,7 +16,7 @@ async function fetchIndividualPullRequests({
   logger.info(prefix + " Pull requests count: " + count);
   let i = 0;
   async function mapper(pr) {
-    const currentCount = i++;
+    const currentCount = ++i;
     const percentage = computePercentage(currentCount, count);
 
     const label = `${prefix} Fetching individual pull request [${currentCount}|${count}] ${percentage}%`;

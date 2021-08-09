@@ -22,7 +22,7 @@ async function fetchIndividualRequesters({
   logger.info(prefix + " Requesters count: " + count);
   let i = 0;
   async function mapper(pr) {
-    const currentCount = i++;
+    const currentCount = ++i;
     const requesterLogin = getRequesterLogin(pr);
     const percentage = computePercentage(currentCount, count);
 

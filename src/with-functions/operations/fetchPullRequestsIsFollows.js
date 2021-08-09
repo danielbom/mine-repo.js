@@ -22,7 +22,7 @@ async function fetchPullRequestsIsFollows({
   let i = 0;
   async function mapper(pr) {
     const data = mapPullRequestToData(pr);
-    const currentCount = i++;
+    const currentCount = ++i;
     const percentage = computePercentage(currentCount, count);
 
     const label = `${prefix} Requester follows merger [${currentCount}|${count}] ${percentage}%`;

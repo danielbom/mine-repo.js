@@ -15,7 +15,7 @@ async function measurePullRequestLastIterations({
 
   let i = 0;
   async function mapper(pr) {
-    const currentCount = i++;
+    const currentCount = ++i;
     const percentage = computePercentage(currentCount, count);
     spinner.text = `${prefix} Measuring pull request [${currentCount}|${count}] ${percentage}%`;
 

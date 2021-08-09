@@ -21,7 +21,7 @@ async function fetchIssuesComments({
   let i = 0;
   async function mapper(isu) {
     let page = 1;
-    const currentCount = i++;
+    const currentCount = ++i;
     const percentage = computePercentage(currentCount, count);
 
     while (true) {
