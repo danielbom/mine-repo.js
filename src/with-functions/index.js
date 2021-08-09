@@ -511,22 +511,22 @@ async function _runner({
             "data.user.login": pr.data.user.login,
             "data.created_at": { $lt: pr.data.created_at },
           };
-          const pullRequests = await db.models.pullRequest
+          const pullRequests = db.models.pullRequest
             .find(filter)
             .countDocuments();
-          const prsComments = await db.models.pullRequestComment
+          const prsComments = db.models.pullRequestComment
             .find(filter)
             .countDocuments();
-          const issues = await db.models.issue.find(filter).countDocuments();
-          const issueComments = await db.models.issueComment
+          const issues = db.models.issue.find(filter).countDocuments();
+          const issueComments = db.models.issueComment
             .find(filter)
             .countDocuments();
 
           return {
-            pullRequests,
-            prsComments,
-            issues,
-            issueComments,
+            pullRequests: await pullRequests,
+            prsComments: await prsComments,
+            issues: await issues,
+            issueComments: await issueComments,
           };
         },
         async updatePullRequestIterations(pr, counts) {
@@ -616,7 +616,9 @@ async function _runner({
                 ],
               },
               prior_iterations_count: "$lastIterations",
-            });
+            })
+            .allowDiskUse(true)
+            .sort({ createdAt: -1 });
           const followChecks = await db.models.followCheck
             .aggregate()
             .match({ project: project._id })

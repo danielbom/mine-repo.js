@@ -41,6 +41,7 @@ const PullRequestSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+PullRequestSchema.index({ "data.user.login": -1 }, { expires: "2m" });
 
 const IssueSchema = new mongoose.Schema(
   {
@@ -51,6 +52,7 @@ const IssueSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+IssueSchema.index({ "data.user.login": -1 }, { expires: "2m" });
 
 const IssueCommentSchema = new mongoose.Schema(
   {
@@ -60,6 +62,7 @@ const IssueCommentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+IssueCommentSchema.index({ "data.user.login": -1 }, { expires: "2m" });
 
 const PullRequestFileSchema = new mongoose.Schema(
   {
@@ -79,6 +82,7 @@ const PullRequestCommentSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+PullRequestCommentSchema.index({ "data.user.login": -1 }, { expires: "2m" });
 
 const FollowCheckSchema = new mongoose.Schema(
   {
