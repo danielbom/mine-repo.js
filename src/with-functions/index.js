@@ -659,8 +659,6 @@ async function _runner({
     logger.info(msg);
     spinner.succeed(msg);
   }
-
-  await db.disconnect();
 }
 
 const DEFAULT_RESTART_DELAY = 60_000;
@@ -674,6 +672,7 @@ async function runnerWithRetry({
   tries = {
     apiLimitReached: 0,
     invalidServerResponse: 0,
+    dnsError: 0,
   },
   nextTime = DEFAULT_RESTART_DELAY,
 }) {
@@ -681,6 +680,7 @@ async function runnerWithRetry({
   let apiLimitReached = false; // http status code 403
   let invalidServerResponse = false; // http status code 502
   let axiosRequestTimeout = false; // timeout request
+  let dnsError = false;
 
   try {
     // Test of API connection
@@ -699,24 +699,31 @@ async function runnerWithRetry({
     const msg = `Error on mining the project ${identifier}`;
     logger.error(msg);
     spinner.fail(msg);
-    spinner.clear();
+    let label = err.code ? `[${err.code}]: ` : "";
 
-    logger.error(err.message);
+    logger.error(label + err.message);
     logger.error(err.stack);
-
-    await db.disconnect();
 
     if (err.isAxiosError && err.response) {
       apiLimitReached = err.response.status === 403;
       invalidServerResponse = err.response.status === 502;
     } else {
       axiosRequestTimeout = err.code === "ECONNABORTED";
+      dnsError = err.code === "EAI_AGAIN";
     }
+  } finally {
+    spinner.clear();
+    await db.disconnect();
   }
 
   // retry
   if (apiLimitReached) {
-    logger.info(`[${tries.apiLimitReached}] API limit reached`);
+    logger.error(`[${tries.apiLimitReached}] API limit reached`);
+    if (tries.apiLimitReached === 3) {
+      logger.error("Retries limit reached");
+      return;
+    }
+
     logger.info("Waiting 1 min to try again...");
     await sleep(nextTime);
     await runnerWithRetry({
@@ -728,14 +735,15 @@ async function runnerWithRetry({
       tries: {
         apiLimitReached: tries.apiLimitReached + 1,
         invalidServerResponse: 0,
+        dnsError: 0,
       },
       nextTime,
     });
   }
   if (invalidServerResponse) {
-    logger.info(`[${tries.invalidServerResponse}] Invalid Server Response`);
-    if (tries.invalidServerResponse === 10) {
-      logger.info("Retries limit reached");
+    logger.error(`[${tries.invalidServerResponse}] Invalid Server Response`);
+    if (tries.invalidServerResponse === 3) {
+      logger.error("Retries limit reached");
       return;
     }
 
@@ -750,12 +758,13 @@ async function runnerWithRetry({
       tries: {
         apiLimitReached: 0,
         invalidServerResponse: tries.invalidServerResponse + 1,
+        dnsError: 0,
       },
       nextTime,
     });
   }
   if (axiosRequestTimeout) {
-    logger.info(`Timeout request`);
+    logger.error(`Timeout request`);
 
     logger.info("Waiting 10 secs. to try again...");
     await sleep(10_000);
@@ -768,6 +777,30 @@ async function runnerWithRetry({
       tries: {
         apiLimitReached: 0,
         invalidServerResponse: 0,
+        dnsError: 0,
+      },
+      nextTime,
+    });
+  }
+  if (dnsError) {
+    logger.error(`[${tries.dnsError}] DNS error`);
+    if (tries.dnsError === 3) {
+      logger.error("Retries limit reached");
+      return;
+    }
+
+    logger.info("Waiting 10 secs. to try again...");
+    await sleep(10_000);
+    await runnerWithRetry({
+      identifier,
+      projectName,
+      projectOwner,
+      spinner,
+      timeIt,
+      tries: {
+        apiLimitReached: 0,
+        invalidServerResponse: 0,
+        dnsError: tries.dnsError + 1,
       },
       nextTime,
     });
