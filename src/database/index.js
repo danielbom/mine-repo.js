@@ -25,7 +25,6 @@ const PullRequestSchema = new mongoose.Schema(
   {
     project: ObjectId,
     data: RequiredObject, // Response of github API
-    selfData: Object, // Response of github API
     base: Object, // Basic data extracted
     pullRequestsCount: Number,
     prsCommentsCount: Number,

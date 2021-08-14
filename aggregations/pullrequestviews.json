@@ -1,9 +1,7 @@
 [
   {
     "$match": {
-      "selfData": {
-        "$exists": true
-      }
+      "individualPrCollected": true
     }
   },
   {
@@ -22,11 +20,11 @@
   {
     "$project": {
       "project": 1,
-      "additions": "$selfData.additions",
-      "deletions": "$selfData.deletions",
-      "filesChanged": "$selfData.changed_files",
-      "requesterLogin": "$selfData.user.login",
-      "mergerLogin": "$selfData.merged_by.login",
+      "additions": "$data.additions",
+      "deletions": "$data.deletions",
+      "filesChanged": "$data.changed_files",
+      "requesterLogin": "$data.user.login",
+      "mergerLogin": "$data.merged_by.login",
       "authorAssociation": "$data.author_association",
       "isCollaborator": {
         "$or": [
@@ -48,7 +46,7 @@
       "requesterFollowsMerger": "$followCheck.following",
       "wasAccepted": {
         "$ne": [
-          "$selfData.merged_by",
+          "$data.merged_by",
           null
         ]
       },

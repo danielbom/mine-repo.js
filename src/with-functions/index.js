@@ -38,6 +38,8 @@ const groupBy = require("./groupBy");
 const fetch = require("./fetch");
 const sleep = require("./sleep");
 
+const cleaners = require("./cleaners");
+
 const { ITEMS_PER_PAGE } = require("./operations/constants");
 
 async function _runner({
@@ -96,7 +98,7 @@ async function _runner({
           if (!exists) {
             await db.models.pullRequest.create({
               project: project._id,
-              data,
+              data: cleaners.pullRequests(data),
             });
           }
         },
@@ -137,7 +139,7 @@ async function _runner({
           if (!issueExists) {
             await db.models.issue.create({
               project: project._id,
-              data,
+              data: cleaners.issues(data),
             });
           }
         },
@@ -182,7 +184,7 @@ async function _runner({
         fetchIndividualPullRequest: (pr) => fetch(pr.data.url),
         async storeIndividualPullRequest(pr, data) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
-          pullRequest.selfData = data;
+          pullRequest.data = cleaners.pullRequests(data);
           pullRequest.individualPrCollected = true;
           await pullRequest.save();
         },
@@ -293,7 +295,7 @@ async function _runner({
             await db.models.issueComment.create({
               project: project._id,
               issue: isu._id,
-              data,
+              data: cleaners.issueComments(data),
             });
           }
         },
@@ -317,7 +319,7 @@ async function _runner({
               .find({
                 project: project._id,
                 isFollowsCollected: false,
-                "selfData.merged_by": { $ne: null },
+                "data.merged_by": { $ne: null },
               })
               .countDocuments();
           },
@@ -326,7 +328,7 @@ async function _runner({
               .find({
                 project: project._id,
                 isFollowsCollected: false,
-                "selfData.merged_by": { $ne: null },
+                "data.merged_by": { $ne: null },
               })
               .limit(100)
               .lean();
@@ -341,7 +343,7 @@ async function _runner({
           },
           mapPullRequestToData: (pr) => ({
             requesterLogin: pr.data.user.login,
-            mergerLogin: pr.selfData.merged_by.login,
+            mergerLogin: pr.data.merged_by.login,
           }),
           requesterIsSameAsMerger: (data) =>
             data.requesterLogin === data.mergerLogin,
@@ -421,7 +423,7 @@ async function _runner({
             await db.models.pullRequestFile.create({
               project: project._id,
               pullRequest: pr._id,
-              data,
+              data: cleaners.pullRequestFiles(data),
             });
           }
         },
@@ -565,6 +567,26 @@ async function _runner({
       fs.mkdirSync(outputPath);
     }
 
+    const followChecks = await db.models.followCheck
+      .aggregate()
+      .match({ project: project._id })
+      .project({ pullRequest: 1, following: 1 });
+    const requesters = await db.models.pullRequestRequester
+      .aggregate()
+      .match({ project: project._id })
+      .project({ "data.followers": 1, requesterLogin: 1 });
+    const files = await db.models.pullRequestFile
+      .aggregate()
+      .match({
+        project: project._id,
+        "data.filename": { $regex: "test", $options: "i" },
+      })
+      .group({ _id: "$pullRequest" });
+
+    const hasTestMap = groupBy(files, (file) => file._id);
+    const followChecksMap = groupBy(followChecks, (fc) => fc.pullRequest);
+    const reqMap = groupBy(requesters, (req) => req.requesterLogin);
+
     await timeIt(prefix + " Generating CSV of " + identifier, async () => {
       await generateCsv({
         resultPath: path.join(outputPath, fileName),
@@ -573,7 +595,7 @@ async function _runner({
             .aggregate()
             .match({
               project: project._id,
-              "selfData.merged_at": { $ne: null },
+              "data.merged_at": { $ne: null },
             })
             .group({ _id: "$data.user.login" })
             .count("contributors_count");
@@ -595,23 +617,23 @@ async function _runner({
             .match({ project: project._id })
             .project({
               _id: 1,
-              createdAt: "$selfData.created_at",
+              createdAt: "$data.created_at",
               // CSV
               submitter_login: "$data.user.login",
-              merger_login: "$selfData.merged_by.login",
-              pull_request_id: "$selfData.number",
-              files_changed_count: "$selfData.changed_files",
+              merger_login: "$data.merged_by.login",
+              pull_request_id: "$data.number",
+              files_changed_count: "$data.changed_files",
               changed_counts: {
-                $add: ["$selfData.additions", "$selfData.deletions"],
+                $add: ["$data.additions", "$data.deletions"],
               },
               is_merged: {
-                $eq: [{ $type: "$selfData.merged_at" }, "string"],
+                $eq: [{ $type: "$data.merged_at" }, "string"],
               },
-              pr_comments_count: "$selfData.comments",
-              pr_review_comments_count: "$selfData.review_comments",
+              pr_comments_count: "$data.comments",
+              pr_review_comments_count: "$data.review_comments",
               is_collaborator: {
                 $in: [
-                  "$selfData.author_association",
+                  "$data.author_association",
                   ["OWNER", "MEMBER", "COLLABORATOR"],
                 ],
               },
@@ -619,25 +641,6 @@ async function _runner({
             })
             .allowDiskUse(true)
             .sort({ createdAt: -1 });
-          const followChecks = await db.models.followCheck
-            .aggregate()
-            .match({ project: project._id })
-            .project({ pullRequest: 1, following: 1 });
-          const requesters = await db.models.pullRequestRequester
-            .aggregate()
-            .match({ project: project._id })
-            .project({ "data.followers": 1, requesterLogin: 1 });
-          const files = await db.models.pullRequestFile
-            .aggregate()
-            .match({
-              project: project._id,
-              "data.filename": { $regex: "test", $options: "i" },
-            })
-            .group({ _id: "$pullRequest" });
-
-          const hasTestMap = groupBy(files, (file) => file._id);
-          const followChecksMap = groupBy(followChecks, (fc) => fc.pullRequest);
-          const reqMap = groupBy(requesters, (req) => req.requesterLogin);
 
           return prs.sort(cmpWith((x) => x.createdAt)).map((pr) => {
             const requester = reqMap[pr.submitter_login];
