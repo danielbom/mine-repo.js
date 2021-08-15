@@ -1,5 +1,5 @@
 // const runner = require("./with-class");
-const cleanPullRequestDataOfDatabase = require("./with-functions/cleaners/cleanPullRequestDataOfDatabase");
+const manageDatabaseUpdates = require("./database/manageDatabaseUpdates");
 const runner = require("./with-functions");
 const readFileLines = require("./readFileLines");
 const joinOutputs = require("./joinOutputs");
@@ -15,7 +15,7 @@ function help() {
 }
 
 async function run() {
-  await cleanPullRequestDataOfDatabase();
+  await manageDatabaseUpdates();
 
   switch (cmd) {
     case "project": {

@@ -8,6 +8,11 @@ const RequiredBoolean = { type: Boolean, required: true };
 const RequiredObject = { type: Object, required: true };
 const DefaultFalse = { type: Boolean, default: false };
 
+const ControlSchema = new mongoose.Schema(
+  { version: { type: Number, required: true, default: 0 } },
+  { timestamps: true }
+);
+
 const ProjectSchema = new mongoose.Schema(
   {
     projectName: RequiredString,
@@ -105,6 +110,7 @@ const PullRequestRequesterSchema = new mongoose.Schema(
 );
 
 const models = {
+  control: mongoose.model("Control", ControlSchema),
   followCheck: mongoose.model("FollowCheck", FollowCheckSchema),
   project: mongoose.model("Project", ProjectSchema),
   issue: mongoose.model("Issue", IssueSchema),
