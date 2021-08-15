@@ -8,6 +8,11 @@ const RequiredBoolean = { type: Boolean, required: true };
 const RequiredObject = { type: Object, required: true };
 const DefaultFalse = { type: Boolean, default: false };
 
+const ControlSchema = new mongoose.Schema(
+  { version: { type: Number, required: true, default: 0 } },
+  { timestamps: true }
+);
+
 const ProjectSchema = new mongoose.Schema(
   {
     projectName: RequiredString,
@@ -25,7 +30,6 @@ const PullRequestSchema = new mongoose.Schema(
   {
     project: ObjectId,
     data: RequiredObject, // Response of github API
-    selfData: Object, // Response of github API
     base: Object, // Basic data extracted
     pullRequestsCount: Number,
     prsCommentsCount: Number,
@@ -106,6 +110,7 @@ const PullRequestRequesterSchema = new mongoose.Schema(
 );
 
 const models = {
+  control: mongoose.model("Control", ControlSchema),
   followCheck: mongoose.model("FollowCheck", FollowCheckSchema),
   project: mongoose.model("Project", ProjectSchema),
   issue: mongoose.model("Issue", IssueSchema),

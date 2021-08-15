@@ -15,8 +15,8 @@
       "runtimeExecutable": "/home/daniel/.asdf/shims/node",
       "args": [
         "project",
-        "paularmstrong",
-        "normalizr"
+        "sebastianbergmann",
+        "phpunit"
       ]
     },
     {
