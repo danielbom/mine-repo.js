@@ -1,5 +1,5 @@
 const db = require("../index");
-const ignoredPullRequestFields = require("../../with-functions/cleaners/ignoredPullRequestFields");
+const cleaners = require("../../with-functions/cleaners");
 
 function fieldsToProject(fields) {
   return Object.fromEntries(
@@ -17,7 +17,7 @@ function ignoreField(field) {
   };
 }
 
-async function cleanPullRequestDataOfDatabase() {
+async function cleanExpensiveData() {
   await db.models.pullRequest.updateMany(
     // Clean up pull requests
     { selfData: { $exists: true } },
@@ -26,7 +26,7 @@ async function cleanPullRequestDataOfDatabase() {
       {
         $project: {
           selfData: 0,
-          ...fieldsToProject(ignoredPullRequestFields),
+          ...fieldsToProject(cleaners.pullRequests.ignoredFields),
         },
       },
     ]
@@ -37,4 +37,4 @@ async function cleanPullRequestDataOfDatabase() {
   await ignoreField("data.body")(db.models.issueComment);
 }
 
-module.exports = cleanPullRequestDataOfDatabase;
+module.exports = cleanExpensiveData;

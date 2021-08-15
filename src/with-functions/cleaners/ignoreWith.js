@@ -1,5 +1,5 @@
 function ignoreWith(ignoredFields) {
-  return function cleaner(data) {
+  function cleaner(data) {
     const copy = {};
     for (const key in data) {
       if (!ignoredFields[key]) {
@@ -7,7 +7,10 @@ function ignoreWith(ignoredFields) {
       }
     }
     return copy;
-  };
+  }
+
+  cleaner.ignoredFields = ignoredFields;
+  return cleaner;
 }
 
 module.exports = ignoreWith;
