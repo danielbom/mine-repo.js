@@ -1,4 +1,5 @@
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const ora = require("ora");
 const { differenceInMonths } = require("date-fns");
@@ -679,7 +680,8 @@ async function runnerWithRetry({
   },
   nextTime = DEFAULT_RESTART_DELAY,
 }) {
-  const concurrency = Math.max(config.GITHUB_APIKEYS.length, 1);
+  const concurrency = Math.max(os.cpus().length, 2);
+
   let apiLimitReached = false; // http status code 403
   let invalidServerResponse = false; // http status code 502
   let axiosRequestTimeout = false; // timeout request
@@ -687,7 +689,7 @@ async function runnerWithRetry({
 
   try {
     // Test of API connection
-    await api.get(getProjectUrl({ projectName, projectOwner }));
+    await fetch(getProjectUrl({ projectName, projectOwner }));
 
     await _runner({
       projectOwner,

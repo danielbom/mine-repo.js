@@ -505,6 +505,11 @@ process-nextick-args@~2.0.0:
   resolved "https://registry.yarnpkg.com/process-nextick-args/-/process-nextick-args-2.0.1.tgz#7820d9b16120cc55ca9ae7792680ae7dba6d7fe2"
   integrity sha512-3ouUOpQhtgrbOa17J7+uxOTpITYWaGP7/AhoR3+A+/1e9skrzelGi/dXzEYyvbxubEF6Wn2ypscTKiKJFFn1ag==
 
+promise-concurrency@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/promise-concurrency/-/promise-concurrency-1.1.1.tgz#69d593f2d4a492bfa2390266dca3965d2f576317"
+  integrity sha512-jyMdGWVelz2WwjbUmRwtwO+J9r48DLa/xjfcsUZ/yAaapalpysLR+fol79z4mzyzNs5+PpEmdOYRAGp1LqUzTA==
+
 pseudomap@^1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/pseudomap/-/pseudomap-1.0.2.tgz#f052a28da70e618917ef0a8ac34c1ae5a68286b3"
