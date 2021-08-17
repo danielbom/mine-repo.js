@@ -11,21 +11,28 @@ async function fetchAllClosedPullRequests({
 }) {
   let page = initialPage;
 
-  while (true) {
+  async function fetchPage() {
     let length = 0;
-
-    await timeIt(`${prefix} Fetching pull requests page(${page})`, async () => {
-      const response = await fetchPullRequests(page);
+    const currentPage = page++;
+    const label = `${prefix} Fetching pull requests page(${currentPage})`;
+    await timeIt(label, async () => {
+      const response = await fetchPullRequests(currentPage);
 
       const data = response.data || [];
       length = safeLength(data);
 
       await Promise.map(data, storePullRequest);
     });
+    return length;
+  }
 
-    if (length !== ITEMS_PER_PAGE) break;
+  const initialLength = await fetchPage();
+  if (initialLength !== ITEMS_PER_PAGE) return;
 
-    page++;
+  while (true) {
+    const promises = Array.from({ length: 4 }, fetchPage);
+    const lengths = await Promise.all(promises);
+    if (lengths.some((length) => length !== ITEMS_PER_PAGE)) break;
   }
 }
 
