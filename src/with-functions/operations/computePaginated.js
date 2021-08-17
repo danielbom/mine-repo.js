@@ -1,4 +1,4 @@
-const Promise = require("bluebird");
+const promiseConcurrency = require("promise-concurrency");
 
 async function computePaginated({ getPaginated, mapper, concurrency }) {
   let page = 0;
@@ -6,7 +6,10 @@ async function computePaginated({ getPaginated, mapper, concurrency }) {
     const items = await getPaginated({ page });
     if (items.length === 0) break;
 
-    await Promise.map(items, mapper, { concurrency });
+    await promiseConcurrency(
+      items.map((item) => () => mapper(item)),
+      concurrency
+    );
     page++;
   }
 }

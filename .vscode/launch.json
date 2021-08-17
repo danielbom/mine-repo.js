@@ -30,7 +30,7 @@
       "runtimeExecutable": "/home/daniel/.asdf/shims/node",
       "args": [
         "file",
-        "projects"
+        "projects/JavaScript",
       ]
     },
     {

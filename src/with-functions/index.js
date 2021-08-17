@@ -1,4 +1,5 @@
 const fs = require("fs");
+const os = require("os");
 const path = require("path");
 const ora = require("ora");
 const { differenceInMonths } = require("date-fns");
@@ -664,8 +665,6 @@ async function _runner({
   }
 }
 
-const DEFAULT_RESTART_DELAY = 60_000;
-
 async function runnerWithRetry({
   identifier,
   projectName,
@@ -677,9 +676,9 @@ async function runnerWithRetry({
     invalidServerResponse: 0,
     dnsError: 0,
   },
-  nextTime = DEFAULT_RESTART_DELAY,
 }) {
-  const concurrency = Math.max(config.GITHUB_APIKEYS.length, 1);
+  const concurrency = Math.max(os.cpus().length, 2);
+
   let apiLimitReached = false; // http status code 403
   let invalidServerResponse = false; // http status code 502
   let axiosRequestTimeout = false; // timeout request
@@ -687,7 +686,7 @@ async function runnerWithRetry({
 
   try {
     // Test of API connection
-    await api.get(getProjectUrl({ projectName, projectOwner }));
+    await fetch(getProjectUrl({ projectName, projectOwner }));
 
     await _runner({
       projectOwner,
@@ -699,13 +698,18 @@ async function runnerWithRetry({
       concurrency,
     });
   } catch (err) {
-    const msg = `Error on mining the project ${identifier}`;
+    const triesBits = [
+      tries.apiLimitReached,
+      tries.invalidServerResponse,
+      tries.dnsError,
+    ].join("|");
+
+    const msg = `[${triesBits}] Error on mining the project ${identifier}`;
     logger.error(msg);
     spinner.fail(msg);
-    let label = err.code ? `[${err.code}]: ` : "";
 
+    let label = err.code ? `[${err.code}]: ` : "";
     logger.error(label + err.message);
-    logger.error(err.stack);
 
     if (err.isAxiosError && err.response) {
       apiLimitReached = err.response.status === 403;
@@ -713,6 +717,16 @@ async function runnerWithRetry({
     } else {
       axiosRequestTimeout = err.code === "ECONNABORTED";
       dnsError = err.code === "EAI_AGAIN";
+    }
+
+    const isControlledErrors =
+      apiLimitReached ||
+      invalidServerResponse ||
+      axiosRequestTimeout ||
+      dnsError;
+
+    if (!isControlledErrors) {
+      logger.error(err.stack);
     }
   } finally {
     spinner.clear();
@@ -722,13 +736,9 @@ async function runnerWithRetry({
   // retry
   if (apiLimitReached) {
     logger.error(`[${tries.apiLimitReached}] API limit reached`);
-    if (tries.apiLimitReached === 3) {
-      logger.error("Retries limit reached");
-      return;
-    }
 
     logger.info("Waiting 1 min to try again...");
-    await sleep(nextTime);
+    await sleep(60_000);
     await runnerWithRetry({
       identifier,
       projectName,
@@ -740,7 +750,6 @@ async function runnerWithRetry({
         invalidServerResponse: 0,
         dnsError: 0,
       },
-      nextTime,
     });
   }
   if (invalidServerResponse) {
@@ -763,7 +772,6 @@ async function runnerWithRetry({
         invalidServerResponse: tries.invalidServerResponse + 1,
         dnsError: 0,
       },
-      nextTime,
     });
   }
   if (axiosRequestTimeout) {
@@ -782,7 +790,6 @@ async function runnerWithRetry({
         invalidServerResponse: 0,
         dnsError: 0,
       },
-      nextTime,
     });
   }
   if (dnsError) {
@@ -805,7 +812,6 @@ async function runnerWithRetry({
         invalidServerResponse: 0,
         dnsError: tries.dnsError + 1,
       },
-      nextTime,
     });
   }
 }

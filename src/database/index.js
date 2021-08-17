@@ -46,6 +46,7 @@ const PullRequestSchema = new mongoose.Schema(
   { timestamps: true }
 );
 PullRequestSchema.index({ "data.user.login": -1 }, { name: "requester" });
+PullRequestSchema.index({ "data.id": -1 }, { name: "identifier" });
 
 const IssueSchema = new mongoose.Schema(
   {
@@ -57,6 +58,7 @@ const IssueSchema = new mongoose.Schema(
   { timestamps: true }
 );
 IssueSchema.index({ "data.user.login": -1 }, { name: "requester" });
+IssueSchema.index({ "data.id": -1 }, { name: "identifier" });
 
 const IssueCommentSchema = new mongoose.Schema(
   {
@@ -67,6 +69,7 @@ const IssueCommentSchema = new mongoose.Schema(
   { timestamps: true }
 );
 IssueCommentSchema.index({ "data.user.login": -1 }, { name: "requester" });
+IssueCommentSchema.index({ "data.id": -1 }, { name: "identifier" });
 
 const PullRequestFileSchema = new mongoose.Schema(
   {
@@ -77,6 +80,7 @@ const PullRequestFileSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+PullRequestFileSchema.index({ "data.sha": -1 }, { name: "identifier" });
 
 const PullRequestCommentSchema = new mongoose.Schema(
   {
