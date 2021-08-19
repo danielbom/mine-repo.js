@@ -5,8 +5,6 @@ const ora = require("ora");
 const { differenceInMonths } = require("date-fns");
 
 const db = require("../database");
-const config = require("../config");
-const api = require("../apis/github");
 
 const loadProject = require("./operations/loadProject");
 
@@ -32,6 +30,7 @@ const getClosedPullRequestsUrl = require("./operations/getClosedPullRequestsUrl"
 const getRequesterFollowsMergerUrl = require("./operations/getRequesterFollowsMergerUrl");
 
 const generateCsv = require("./operations/generateCsv");
+const catch7stepSafeError = require("./catch7stepSafeErrors");
 
 const logger = require("./logger");
 const parseMillisecondsIntoReadableTime = require("./parseMillisecondsIntoReadableTime");
@@ -406,15 +405,7 @@ async function _runner({
         },
         fetchFiles: (pr, page) => {
           const url = `${pr.data.url}/files?page=${page}`;
-          return fetch(url + PER_PAGE_QUERY).catch((err) => {
-            if (err.isAxiosError && err.response) {
-              if (err.response.status === 503) {
-                return {};
-              }
-            }
-
-            throw err;
-          });
+          return fetch(url + PER_PAGE_QUERY).catch(catch7stepSafeError);
         },
         async onFetchFilesComplete(pr) {
           const pullRequest = await db.models.pullRequest.findById(pr._id);
