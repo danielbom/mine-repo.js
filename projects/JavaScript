@@ -1,34 +1,34 @@
 # freeCodeCamp/freeCodeCamp                  { "closed_PR": 27090, "contributors": 4285, "stars": 328506 }
 #OK vuejs/vue                                  { "closed_PR": 1845, "contributors": 399, "stars": 186689 }
-facebook/react                             { "closed_PR": 10992, "contributors": 1498, "stars": 172751 }
-twbs/bootstrap                             { "closed_PR": 12730, "contributors": 1236, "stars": 152308 }
+#OK facebook/react                             { "closed_PR": 10992, "contributors": 1498, "stars": 172751 }
+#OK twbs/bootstrap                             { "closed_PR": 12730, "contributors": 1236, "stars": 152308 }
 # trekhleb/javascript-algorithms             { "closed_PR": 337, "contributors": 143, "stars": 116330 }
 # airbnb/javascript                          { "closed_PR": 1253, "contributors": 475, "stars": 112763 }
-d3/d3                                      { "closed_PR": 1108, "contributors": 123, "stars": 97813 }
-facebook/react-native                      { "closed_PR": 9778, "contributors": 2203, "stars": 97151 }
-facebook/create-react-app                  { "closed_PR": 3451, "contributors": 865, "stars": 89579 }
-axios/axios                                { "closed_PR": 745, "contributors": 273, "stars": 86743 }
-30-seconds/30-seconds-of-code              { "closed_PR": 1430, "contributors": 261, "stars": 81686 }
-nodejs/node                                { "closed_PR": 24908, "contributors": 3008, "stars": 80937 }
-mrdoob/three.js                            { "closed_PR": 11510, "contributors": 1468, "stars": 73408 }
-vercel/next.js                             { "closed_PR": 8643, "contributors": 1725, "stars": 71492 }
-mui-org/material-ui                        { "closed_PR": 13826, "contributors": 2255, "stars": 70237 }
-goldbergyoni/nodebestpractices             { "closed_PR": 763, "contributors": 198, "stars": 69692 }
-FortAwesome/Font-Awesome                   { "closed_PR": 591, "contributors": 93, "stars": 65932 }
+#OK d3/d3                                      { "closed_PR": 1108, "contributors": 123, "stars": 97813 }
+#OK facebook/react-native                      { "closed_PR": 9778, "contributors": 2203, "stars": 97151 }
+#OK facebook/create-react-app                  { "closed_PR": 3451, "contributors": 865, "stars": 89579 }
+#OK axios/axios                                { "closed_PR": 745, "contributors": 273, "stars": 86743 }
+#OK 30-seconds/30-seconds-of-code              { "closed_PR": 1430, "contributors": 261, "stars": 81686 }
+#OK nodejs/node                                { "closed_PR": 24908, "contributors": 3008, "stars": 80937 }
+#OK mrdoob/three.js                            { "closed_PR": 11510, "contributors": 1468, "stars": 73408 }
+#OK vercel/next.js                             { "closed_PR": 8643, "contributors": 1725, "stars": 71492 }
+#OK mui-org/material-ui                        { "closed_PR": 13826, "contributors": 2255, "stars": 70237 }
+#OK goldbergyoni/nodebestpractices             { "closed_PR": 763, "contributors": 198, "stars": 69692 }
+#OK FortAwesome/Font-Awesome                   { "closed_PR": 591, "contributors": 93, "stars": 65932 }
 # awesome-selfhosted/awesome-selfhosted      { "closed_PR": 1980, "contributors": 923, "stars": 62142 }
-angular/angular.js                         { "closed_PR": 7914, "contributors": 1701, "stars": 59597 }
-webpack/webpack                            { "closed_PR": 4929, "contributors": 681, "stars": 59004 }
-hakimel/reveal.js                          { "closed_PR": 839, "contributors": 286, "stars": 56918 }
+#OK angular/angular.js                         { "closed_PR": 7914, "contributors": 1701, "stars": 59597 }
+#OK webpack/webpack                            { "closed_PR": 4929, "contributors": 681, "stars": 59004 }
+#OK hakimel/reveal.js                          { "closed_PR": 839, "contributors": 286, "stars": 56918 }
 # yangshun/tech-interview-handbook           { "closed_PR": 182, "contributors": 93, "stars": 55961 }
-atom/atom                                  { "closed_PR": 5071, "contributors": 482, "stars": 55864 }
-typicode/json-server                       { "closed_PR": 227, "contributors": 69, "stars": 55603 }
-jquery/jquery                              { "closed_PR": 2687, "contributors": 275, "stars": 55221 }
+#OK atom/atom                                  { "closed_PR": 5071, "contributors": 482, "stars": 55864 }
+#OK typicode/json-server                       { "closed_PR": 227, "contributors": 69, "stars": 55603 }
+#OK jquery/jquery                              { "closed_PR": 2687, "contributors": 275, "stars": 55221 }
 # ryanmcdermott/clean-code-javascript        { "closed_PR": 231, "contributors": 109, "stars": 55155 }
-chartjs/Chart.js                           { "closed_PR": 3189, "contributors": 375, "stars": 54459 }
-socketio/socket.io                         { "closed_PR": 773, "contributors": 193, "stars": 54110 }
-expressjs/express                          { "closed_PR": 985, "contributors": 267, "stars": 53988 }
-adam-p/markdown-here                       { "closed_PR": 48, "contributors": 12, "stars": 52704 }
-h5bp/html5-boilerplate                     { "closed_PR": 1291, "contributors": 258, "stars": 51043 }
+#OK chartjs/Chart.js                           { "closed_PR": 3189, "contributors": 375, "stars": 54459 }
+#OK socketio/socket.io                         { "closed_PR": 773, "contributors": 193, "stars": 54110 }
+#OK expressjs/express                          { "closed_PR": 985, "contributors": 267, "stars": 53988 }
+#OK adam-p/markdown-here                       { "closed_PR": 48, "contributors": 12, "stars": 52704 }
+#OK h5bp/html5-boilerplate                     { "closed_PR": 1291, "contributors": 258, "stars": 51043 }
 gatsbyjs/gatsby                            { "closed_PR": 18235, "contributors": 3763, "stars": 51037 }
 lodash/lodash                              { "closed_PR": 1110, "contributors": 310, "stars": 50343 }
 Semantic-Org/Semantic-UI                   { "closed_PR": 757, "contributors": 201, "stars": 49480 }
