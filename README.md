@@ -361,6 +361,9 @@ Entrar nos projetos e conferir se tem 3 contribuidores e 3 pull requests fechado
 Verificar se o projeto não é um tutorial.
 Anotar a quantidade de pull requests de cada projeto.
 
+* Colocar todos os projetos coletados no drive:
+- https://drive.google.com/drive/folders/1-mt4homRgbUQ86GPcyfg0sfPEPaRCZEs
+
 ## Referencias
 
 * [Informações sobre atualização do uso da chave de api do github](https://developer.github.com/changes/2020-02-10-deprecating-auth-through-query-param/)
@@ -370,4 +373,3 @@ Anotar a quantidade de pull requests de cada projeto.
 * [What is the meaning of filtered in mysql explain](https://dba.stackexchange.com/questions/164251/what-is-the-meaning-of-filtered-in-mysql-explain)
 * [Bash script directory](https://stackoverflow.com/questions/59895/how-can-i-get-the-source-directory-of-a-bash-script-from-within-the-script-itsel)
 * [How to limit the RAM memory usage of mongodb](https://dba.stackexchange.com/questions/86109/limit-the-ram-memory-usage-in-mongodb)
-

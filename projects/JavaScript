@@ -29,36 +29,36 @@
 #OK expressjs/express                          { "closed_PR": 985, "contributors": 267, "stars": 53988 }
 #OK adam-p/markdown-here                       { "closed_PR": 48, "contributors": 12, "stars": 52704 }
 #OK h5bp/html5-boilerplate                     { "closed_PR": 1291, "contributors": 258, "stars": 51043 }
-gatsbyjs/gatsby                            { "closed_PR": 18235, "contributors": 3763, "stars": 51037 }
-lodash/lodash                              { "closed_PR": 1110, "contributors": 310, "stars": 50343 }
-Semantic-Org/Semantic-UI                   { "closed_PR": 757, "contributors": 201, "stars": 49480 }
+#OK gatsbyjs/gatsby                            { "closed_PR": 18235, "contributors": 3763, "stars": 51037 }
+#OK lodash/lodash                              { "closed_PR": 1110, "contributors": 310, "stars": 50343 }
+#OK Semantic-Org/Semantic-UI                   { "closed_PR": 757, "contributors": 201, "stars": 49480 }
 # resume/resume.github.com                   { "closed_PR": 168, "contributors": 52, "stars": 49429 }
-moment/moment                              { "closed_PR": 1941, "contributors": 590, "stars": 45899 }
-tailwindlabs/tailwindcss                   { "closed_PR": 1279, "contributors": 184, "stars": 45533 }
+#OK moment/moment                              { "closed_PR": 1941, "contributors": 590, "stars": 45899 }
+#OK tailwindlabs/tailwindcss                   { "closed_PR": 1279, "contributors": 184, "stars": 45533 }
 # scutan90/DeepLearning-500-questions        { "closed_PR": 330, "contributors": 105, "stars": 45433 }
 # jaywcjlove/awesome-mac                     { "closed_PR": 593, "contributors": 367, "stars": 45067 }
-ReactTraining/react-router                 { "closed_PR": 1991, "contributors": 658, "stars": 43723 }
+#OK ReactTraining/react-router                 { "closed_PR": 1991, "contributors": 658, "stars": 43723 }
 # azl397985856/leetcode                      { "closed_PR": 255, "contributors": 66, "stars": 43531 }
 # leonardomso/33-js-concepts                 { "closed_PR": 135, "contributors": 79, "stars": 42926 }
-meteor/meteor                              { "closed_PR": 2925, "contributors": 464, "stars": 42554 }
-NARKOZ/hacker-scripts                      { "closed_PR": 105, "contributors": 50, "stars": 41635 }
-serverless/serverless                      { "closed_PR": 4360, "contributors": 908, "stars": 40461 }
-prettier/prettier                          { "closed_PR": 5947, "contributors": 546, "stars": 40280 }
-juliangarnier/anime                        { "closed_PR": 126, "contributors": 52, "stars": 40046 }
-yarnpkg/yarn                               { "closed_PR": 2092, "contributors": 521, "stars": 39990 }
-babel/babel                                { "closed_PR": 5330, "contributors": 978, "stars": 39469 }
-ColorlibHQ/AdminLTE                        { "closed_PR": 1213, "contributors": 174, "stars": 39234 }
-parcel-bundler/parcel                      { "closed_PR": 2191, "contributors": 307, "stars": 38747 }
-Dogfalo/materialize                        { "closed_PR": 1247, "contributors": 261, "stars": 38573 }
-nwjs/nw.js                                 { "closed_PR": 783, "contributors": 103, "stars": 38292 }
-strapi/strapi                              { "closed_PR": 4408, "contributors": 677, "stars": 38196 }
-TryGhost/Ghost                             { "closed_PR": 6999, "contributors": 349, "stars": 38152 }
-iptv-org/iptv                              { "closed_PR": 2615, "contributors": 112, "stars": 38080 }
-nuxt/nuxt.js                               { "closed_PR": 2821, "contributors": 313, "stars": 37366 }
-mermaid-js/mermaid                         { "closed_PR": 743, "contributors": 251, "stars": 37226 }
-impress/impress.js                         { "closed_PR": 323, "contributors": 80, "stars": 36380 }
-iamkun/dayjs                               { "closed_PR": 689, "contributors": 261, "stars": 35921 }
-mozilla/pdf.js                             { "closed_PR": 6088, "contributors": 340, "stars": 35722 }
+#OK meteor/meteor                              { "closed_PR": 2925, "contributors": 464, "stars": 42554 }
+#OK NARKOZ/hacker-scripts                      { "closed_PR": 105, "contributors": 50, "stars": 41635 }
+#OK serverless/serverless                      { "closed_PR": 4360, "contributors": 908, "stars": 40461 }
+#OK prettier/prettier                          { "closed_PR": 5947, "contributors": 546, "stars": 40280 }
+#OK juliangarnier/anime                        { "closed_PR": 126, "contributors": 52, "stars": 40046 }
+#OK yarnpkg/yarn                               { "closed_PR": 2092, "contributors": 521, "stars": 39990 }
+#OK babel/babel                                { "closed_PR": 5330, "contributors": 978, "stars": 39469 }
+#OK ColorlibHQ/AdminLTE                        { "closed_PR": 1213, "contributors": 174, "stars": 39234 }
+#OK parcel-bundler/parcel                      { "closed_PR": 2191, "contributors": 307, "stars": 38747 }
+#OK Dogfalo/materialize                        { "closed_PR": 1247, "contributors": 261, "stars": 38573 }
+#OK nwjs/nw.js                                 { "closed_PR": 783, "contributors": 103, "stars": 38292 }
+#OK strapi/strapi                              { "closed_PR": 4408, "contributors": 677, "stars": 38196 }
+#OK TryGhost/Ghost                             { "closed_PR": 6999, "contributors": 349, "stars": 38152 }
+#OK iptv-org/iptv                              { "closed_PR": 2615, "contributors": 112, "stars": 38080 }
+#OK nuxt/nuxt.js                               { "closed_PR": 2821, "contributors": 313, "stars": 37366 }
+#OK mermaid-js/mermaid                         { "closed_PR": 743, "contributors": 251, "stars": 37226 }
+#OK impress/impress.js                         { "closed_PR": 323, "contributors": 80, "stars": 36380 }
+#OK iamkun/dayjs                               { "closed_PR": 689, "contributors": 261, "stars": 35921 }
+#OK mozilla/pdf.js                             { "closed_PR": 6088, "contributors": 340, "stars": 35722 }
 # Unitech/pm2                                { "closed_PR": -1, "contributors": -1, "stars": 35366 }
 # algorithm-visualizer/algorithm-visualizer  { "closed_PR": -1, "contributors": -1, "stars": 35169 }
 # chinese-poetry/chinese-poetry              { "closed_PR": -1, "contributors": -1, "stars": 33822 }
