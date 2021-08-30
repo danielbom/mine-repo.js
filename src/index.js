@@ -2,7 +2,6 @@
 const manageDatabaseUpdates = require("./database/manageDatabaseUpdates");
 const runner = require("./with-functions");
 const readFileLines = require("./readFileLines");
-const joinOutputs = require("./joinOutputs");
 
 const args = process.argv.slice(2);
 
@@ -11,7 +10,6 @@ const cmd = args.shift();
 function help() {
   console.error("Usage: yarn mine project [project-owner] [project-name]");
   console.error("Usage: yarn mine file [filename]");
-  console.error("Usage: yarn mine join-outputs [output-path]");
 }
 
 async function run() {
@@ -51,18 +49,6 @@ async function run() {
         console.error("Invalid number of arguments");
         help();
       }
-      break;
-    }
-    case "join-outputs":
-      if (args.length === 1) {
-        joinOutputs(args[0]);
-      } else {
-        console.error("Invalid number of arguments");
-        help();
-      }
-      break;
-    default: {
-      help();
       break;
     }
   }
